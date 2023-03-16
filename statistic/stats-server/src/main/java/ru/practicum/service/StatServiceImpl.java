@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.GetStatDto;
 import ru.practicum.PostStatDto;
+import ru.practicum.mapper.StatMapper;
 import ru.practicum.repository.StatRepository;
 
 import java.util.List;
@@ -15,7 +16,9 @@ public class StatServiceImpl implements StatService {
 
     @Override
     public PostStatDto addNewStatistic(PostStatDto postStatDto) {
-        return null;
+        System.out.println("*************:" + postStatDto);
+        return StatMapper.INSTANCE.mapStatModelToPostStatDto(statRepository.save
+                (StatMapper.INSTANCE.mapPostStatDtoToStatModel(postStatDto)));
     }
 
     @Override
