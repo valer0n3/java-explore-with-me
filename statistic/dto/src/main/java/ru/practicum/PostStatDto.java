@@ -1,6 +1,6 @@
 package ru.practicum;
 
-import lombok.Builder;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -8,7 +8,6 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDateTime;
 
 @Data
-@Builder
 public class PostStatDto {
     @NotBlank
     @NotNull
@@ -19,7 +18,7 @@ public class PostStatDto {
     @NotBlank
     @NotNull
     private String ip;
-    @NotBlank
     @NotNull
-    private LocalDateTime timeStamp;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime timestamp;
 }

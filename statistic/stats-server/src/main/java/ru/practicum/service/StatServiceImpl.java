@@ -17,8 +17,8 @@ public class StatServiceImpl implements StatService {
     @Override
     public PostStatDto addNewStatistic(PostStatDto postStatDto) {
         System.out.println("*************:" + postStatDto);
-        return StatMapper.INSTANCE.mapStatModelToPostStatDto(statRepository.save
-                (StatMapper.INSTANCE.mapPostStatDtoToStatModel(postStatDto)));
+        return StatMapper.INSTANCE.mapStatModelToPostStatDto(statRepository
+                .save(StatMapper.INSTANCE.mapPostStatDtoToStatModel(postStatDto)));
     }
 
     @Override

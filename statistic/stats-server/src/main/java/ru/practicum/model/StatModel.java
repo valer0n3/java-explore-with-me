@@ -31,7 +31,5 @@ public class StatModel {
     @Column(name = "ip")
     private String ip;
     @Column(name = "timestamp")
-    private LocalDateTime timeStamp;
-
-
+    private LocalDateTime timestamp;
 }

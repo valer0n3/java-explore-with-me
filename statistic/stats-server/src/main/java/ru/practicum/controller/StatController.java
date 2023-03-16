@@ -1,6 +1,7 @@
 package ru.practicum.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,7 +19,7 @@ public class StatController {
     private final StatService statService;
 
     @PostMapping("/hit")
-    public PostStatDto addNewStatistic(@RequestBody PostStatDto postStatDto) {
+    public PostStatDto addNewStatistic(@Validated @RequestBody PostStatDto postStatDto) {
         return statService.addNewStatistic(postStatDto);
     }
 
