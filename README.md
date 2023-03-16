@@ -1,2 +1,5 @@
 # java-explore-with-me
-Template repository for ExploreWithMe project.
+
+## stats-server database diagram:
+
+![database diagram:](statistic\stats-server\src\main\resources\explore-with-me-statistic.jpg)
