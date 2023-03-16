@@ -1,12 +1,18 @@
 package ru.practicum.service;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.GetStatDto;
 import ru.practicum.PostStatDto;
+import ru.practicum.repository.StatRepository;
 
 import java.util.List;
+
 @Service
-public class StatServiceImpl implements StatService{
+@AllArgsConstructor
+public class StatServiceImpl implements StatService {
+    private final StatRepository statRepository;
+
     @Override
     public PostStatDto addNewStatistic(PostStatDto postStatDto) {
         return null;

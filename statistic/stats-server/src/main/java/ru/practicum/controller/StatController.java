@@ -8,15 +8,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.GetStatDto;
 import ru.practicum.PostStatDto;
+import ru.practicum.service.StatService;
 
 import java.util.List;
 
 @RestController
 @AllArgsConstructor
 public class StatController {
+    private final StatService statService;
+
     @PostMapping("/hit")
     public PostStatDto addNewStatistic(@RequestBody PostStatDto postStatDto) {
-        return null;
+        return statService.addNewStatistic(postStatDto);
     }
 
     @GetMapping("/stats")
@@ -24,6 +27,6 @@ public class StatController {
                                           @RequestParam(name = "end", required = true) String end,
                                           @RequestParam(name = "uris", required = false) List<String> uris,
                                           @RequestParam(name = "unique", defaultValue = "false") boolean unique) {
-        return null;
+        return statService.getStatistics(start, end, uris, unique);
     }
 }
