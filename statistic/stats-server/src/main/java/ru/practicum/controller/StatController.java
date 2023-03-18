@@ -22,6 +22,7 @@ public class StatController {
 
     @PostMapping("/hit")
     public PostStatDto addNewStatistic(@Validated @RequestBody PostStatDto postStatDto) {
+        System.out.println("Controller post recieved " + postStatDto);
         return statService.addNewStatistic(postStatDto);
     }
 

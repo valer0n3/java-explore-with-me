@@ -14,3 +14,4 @@ public class GetStatDto {
     private String uri;
     private long hits;
 }
+
