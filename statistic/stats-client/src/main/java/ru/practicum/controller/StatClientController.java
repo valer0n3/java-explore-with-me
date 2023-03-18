@@ -32,8 +32,8 @@ public class StatClientController {
         List<GetStatDto> getStatDtoList = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
-                        .queryParam("start", "2020-05-05 00:00:00")
-                        .queryParam("end", "2045-05-05 00:00:00")
+                        .queryParam("start", start)
+                        .queryParam("end", end)
                         .queryParam("uris", uris)
                         .queryParam("unique", unique)
                         .build())
