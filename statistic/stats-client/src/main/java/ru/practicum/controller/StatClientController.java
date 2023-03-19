@@ -14,7 +14,7 @@ import java.util.List;
 public class StatClientController {
     private final WebClient webClient;
 
-    public StatClientController(@Value("${stats-server.url}") String statServerUrl) {
+    public StatClientController(@Value("{stats-server.url}") String statServerUrl) {
         this.webClient = WebClient.create(statServerUrl);
     }
 
