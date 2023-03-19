@@ -16,20 +16,19 @@ public class StatClientController {
     }
 
     public PostStatDto addNewStatistic(PostStatDto postStatDto) {
-        PostStatDto objectResponseEntity = webClient.post()
+        return webClient.post()
                 .uri("/hit")
                 .body(BodyInserters.fromValue(postStatDto))
                 .retrieve()
                 .bodyToMono(PostStatDto.class)
                 .block();
-        return objectResponseEntity;
     }
 
     public List<GetStatDto> getStatistic(LocalDateTime start,
                                          LocalDateTime end,
                                          List<String> uris,
                                          boolean unique) {
-        List<GetStatDto> getStatDtoList = webClient.get()
+        return webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
                         .queryParam("start", start)
@@ -41,7 +40,6 @@ public class StatClientController {
                 .bodyToFlux(GetStatDto.class)
                 .collectList()
                 .block();
-        return getStatDtoList;
     }
 }
 
