@@ -1,5 +1,7 @@
 package ru.practicum.controller;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import ru.practicum.GetStatDto;
@@ -8,11 +10,12 @@ import ru.practicum.PostStatDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Component
 public class StatClientController {
     private final WebClient webClient;
 
-    public StatClientController() {
-        this.webClient = WebClient.create("http://localhost:9090");
+    public StatClientController(@Value("${stats-server.url}") String statServerUrl) {
+        this.webClient = WebClient.create(statServerUrl);
     }
 
     public PostStatDto addNewStatistic(PostStatDto postStatDto) {
