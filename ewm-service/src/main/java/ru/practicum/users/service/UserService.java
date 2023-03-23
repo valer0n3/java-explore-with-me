@@ -6,8 +6,7 @@ import ru.practicum.users.dto.PostUserDto;
 import java.util.List;
 
 public interface UserService {
-    List<GetUserDto> getAllUsers(List<Integer> ids, int from, int size);
-
+    List<GetUserDto> getAllUsers(List<Long> ids, int from, int size);
 
     GetUserDto createNewUser(PostUserDto postUserDto);
 

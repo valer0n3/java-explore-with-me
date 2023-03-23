@@ -10,6 +10,7 @@ import ru.practicum.users.mapper.UserMapper;
 import ru.practicum.users.repository.UserRepository;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -18,9 +19,17 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<GetUserDto> getAllUsers(List<Integer> ids, int from, int size) {
-        Pageable pageWithElements = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
-        return null;
+    public List<GetUserDto> getAllUsers(List<Long> ids, int from, int size) {
+        Pageable pageble = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
+        if (ids == null || ids.isEmpty()) {
+            return userRepository.findAll(pageble).stream()
+                    .map(userMapper::mapUserModelToGetUserDto)
+                    .collect(Collectors.toList());
+        } else {
+            return userRepository.findAllByIdIn(ids, pageble).stream()
+                    .map(userMapper::mapUserModelToGetUserDto)
+                    .collect(Collectors.toList());
+        }
     }
 
     @Override
