@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.categories.dto.GetCategoryDto;
+import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.service.CategoryService;
 
 import javax.validation.constraints.Min;
@@ -21,13 +21,13 @@ public class PublicCategoryController {
     private final CategoryService categoryService;
 
     @GetMapping
-    public List<GetCategoryDto> getAllCategories(@RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
-                                                 @RequestParam(name = "size", defaultValue = "10") @Min(1) int size) {
+    public List<CategoryDto> getAllCategories(@RequestParam(name = "from", defaultValue = "0") @Min(0) int from,
+                                              @RequestParam(name = "size", defaultValue = "10") @Min(1) int size) {
         return categoryService.getAllCategories(from, size);
     }
 
     @GetMapping("/{catId}")
-    public GetCategoryDto getCategoryById(@PathVariable("catId") @Min(0) long catId) {
+    public CategoryDto getCategoryById(@PathVariable("catId") @Min(0) long catId) {
         return categoryService.getCategoryById(catId);
     }
 }

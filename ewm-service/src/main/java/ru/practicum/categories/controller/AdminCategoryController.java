@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.categories.dto.GetCategoryDto;
+import ru.practicum.categories.dto.CategoryDto;
 import ru.practicum.categories.dto.PostCategoryDto;
 import ru.practicum.categories.service.CategoryServiceImpl;
 
@@ -24,7 +24,7 @@ public class AdminCategoryController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public GetCategoryDto createNewCategory(@Valid @RequestBody PostCategoryDto postCategoryDto) {
+    public CategoryDto createNewCategory(@Valid @RequestBody PostCategoryDto postCategoryDto) {
         return categoryService.createNewCategory(postCategoryDto);
     }
 
@@ -35,8 +35,8 @@ public class AdminCategoryController {
     }
 
     @PatchMapping("/{catId}")
-    public GetCategoryDto changeCategory(@PathVariable("catId") long catId,
-                                         @Valid @RequestBody PostCategoryDto postCategoryDto) {
+    public CategoryDto changeCategory(@PathVariable("catId") long catId,
+                                      @Valid @RequestBody PostCategoryDto postCategoryDto) {
         return categoryService.changeCategory(catId, postCategoryDto);
     }
 }

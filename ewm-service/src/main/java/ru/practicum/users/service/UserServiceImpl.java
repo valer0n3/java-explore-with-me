@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.users.dto.GetUserDto;
 import ru.practicum.users.dto.PostUserDto;
 import ru.practicum.users.mapper.UserMapper;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
@@ -33,12 +35,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public GetUserDto createNewUser(PostUserDto postUserDto) {
         return userMapper.mapUserModelToGetUserDto(userRepository
                 .save(userMapper.mapPostUserDtoToUserModel(postUserDto)));
     }
 
     @Override
+    @Transactional
     public void deleteUser(long userId) {
         userRepository.deleteById(userId);
     }
