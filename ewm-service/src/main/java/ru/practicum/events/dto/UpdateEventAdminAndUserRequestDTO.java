@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class UpdateEventUserRequestDto {
+public class UpdateEventAdminAndUserRequestDTO {
     private String annotation;
     private long category;
     private String description;
