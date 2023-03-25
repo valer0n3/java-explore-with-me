@@ -42,7 +42,8 @@ public class ErrorHandler {
                 LocalDateTime.now());
     }
 
-    @ExceptionHandler
+    //TODO delete this method or fix it
+/*    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public EwmServiceException badRequest2(final MethodArgumentNotValidException methodArgumentNotValidException) {
         log.warn("Error 400: {}", methodArgumentNotValidException.getMessage());
@@ -50,6 +51,16 @@ public class ErrorHandler {
                 "Incorrectly made request.",
                 // String.format("Field: %s. Error: %s. Value: %s", "1", "2", "3")
                 methodArgumentNotValidException.getCause().toString(),
+                LocalDateTime.now());
+    }*/
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    public EwmServiceException forbidden(final EwmServiceForbiddenException ewmServiceForbiddenException) {
+        log.warn("Error 400: {}", ewmServiceForbiddenException.getMessage());
+        return new EwmServiceException(HttpStatus.FORBIDDEN.toString(),
+                "For the requested operation the conditions are not met.",
+                ewmServiceForbiddenException.getMessage(),
                 LocalDateTime.now());
     }
 }

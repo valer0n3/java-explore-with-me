@@ -1,4 +1,7 @@
 package ru.practicum.events.repository;
 
-public interface EventRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import ru.practicum.events.model.EventModel;
+
+public interface EventRepository extends JpaRepository<EventModel, Long> {
 }

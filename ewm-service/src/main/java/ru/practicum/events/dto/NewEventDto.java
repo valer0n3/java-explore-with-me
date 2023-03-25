@@ -6,10 +6,10 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Data
@@ -17,27 +17,28 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NewEventDto {
-    @Min(20)
-    @Max(2000)
+    @Size(min = 20, max = 2000)
     @NotNull
     @NotBlank
     private String annotation;
     @NotNull
     private long category;
-    @Min(20)
-    @Max(7000)
+    @Size(min = 20, max = 7000)
     @NotNull
     @NotBlank
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @NotNull
+    @Future
     private LocalDateTime eventDate;
     @NotNull
     private LocationDto location;
+    //@Builder.Default
     private boolean paid = false;
     private int participantLimit;
+    //@Builder.Default
+    private boolean requestModeration = true;
     @NotNull
-    @Min(3)
-    @Max(120)
+    @Size(min = 3, max = 120)
     private String title;
 }

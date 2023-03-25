@@ -33,22 +33,29 @@ public class EventModel {
     private CategoryModel category;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id ")
-    private UserModel userEventCreator;
+    private UserModel initiator;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "location_id")
-    private LocationCategoryModel location;
+    private LocationModel location;
     @Column(name = "annotation")
     private String annotation;
     @Column(name = "description")
     private String description;
     @Column(name = "event_date ")
-    private LocalDateTime event_date;
+    private LocalDateTime eventDate;
     @Column(name = "paid")
     private boolean paid;
     @Column(name = " participant_limit")
-    private int participant_limit;
+    private int participantLimit;
     @Column(name = "request_moderation")
-    private boolean request_moderation;
+    private boolean requestModeration;
     @Column(name = "title")
     private String title;
+    @Column(name = "created_on")
+    private LocalDateTime createdOn;
+    @Column(name = "published_on")
+    private LocalDateTime publishedOn;
+    @Column(name = "state")
+    private String state;
+
 }

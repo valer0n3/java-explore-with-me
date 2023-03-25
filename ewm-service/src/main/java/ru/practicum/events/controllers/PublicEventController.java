@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
+import ru.practicum.events.service.EventServiceImpl;
 
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
@@ -20,6 +21,8 @@ import java.util.List;
 @AllArgsConstructor
 @Validated
 public class PublicEventController {
+    private final EventServiceImpl eventService;
+
     @GetMapping
     public List<EventShortDto> getEventsWithFilter(
             @RequestParam(name = "text", required = false) String text,
@@ -33,11 +36,11 @@ public class PublicEventController {
             @RequestParam(name = "sort", required = false) String sort,
             @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) int from,
             @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size) {
-        return null;
+        return eventService.getEventsWithFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
     }
 
     @GetMapping("/{id}")
-    public List<EventFullDto> getEventsWithFilter(@PathVariable("id") @Min(0) long id) {
-        return null;
+    public EventFullDto getEventWithFilterById(@PathVariable("id") @Min(0) long id) {
+        return eventService.getEventWithFilterById(id);
     }
 }

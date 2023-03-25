@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.UpdateEventAdminAndUserRequestDTO;
+import ru.practicum.events.service.EventServiceImpl;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -23,6 +24,8 @@ import java.util.List;
 @AllArgsConstructor
 @Validated
 public class AdminEventController {
+    private final EventServiceImpl eventService;
+
     @GetMapping
     public List<EventFullDto> getAllEvents(@RequestParam(name = "users", required = false) List<Integer> users,
                                            @RequestParam(name = "states", required = false) List<String> state,
@@ -33,13 +36,13 @@ public class AdminEventController {
                                            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
                                            @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) int from,
                                            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size) {
-        return null;
+        return eventService.getAllEvents(users, state, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
     public EventFullDto updateEventAndStatus(
             @PathVariable("eventId") @Min(0) long eventId,
             @Valid @RequestBody UpdateEventAdminAndUserRequestDTO updateEventAdminAndUserRequestDTO) {
-        return null;
+        return eventService.updateEventAndStatus(eventId, updateEventAdminAndUserRequestDTO);
     }
 }

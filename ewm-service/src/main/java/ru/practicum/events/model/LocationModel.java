@@ -16,13 +16,13 @@ import javax.persistence.Table;
 @NoArgsConstructor
 @Entity
 @Table(name = "location")
-public class LocationCategoryModel {
+public class LocationModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "location_id")
     private long id;
     @Column(name = "latitude")
-    private float latitude;
+    private float lat;
     @Column(name = "longitude")
-    private float longitude;
+    private float lon;
 }
