@@ -1,6 +1,7 @@
 package ru.practicum.users.conroller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.exceptions.EwmServiceNotFound;
 import ru.practicum.users.dto.GetUserDto;
 import ru.practicum.users.dto.PostUserDto;
 import ru.practicum.users.service.UserService;
@@ -43,7 +45,10 @@ public class UserController {
     @DeleteMapping("/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteUser(@PathVariable("userId") long userId) {
-        System.out.println("**********:");
-        userService.deleteUser(userId);
+        try {
+            userService.deleteUser(userId);
+        } catch (EmptyResultDataAccessException emptyResultDataAccessException) {
+            throw new EwmServiceNotFound(String.format("User with id=%d was not found", userId));
+        }
     }
 }
