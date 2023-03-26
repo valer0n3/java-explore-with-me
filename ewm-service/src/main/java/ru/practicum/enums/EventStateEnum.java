@@ -1,4 +1,4 @@
-package ru.practicum.events.enums;
+package ru.practicum.enums;
 
 import ru.practicum.exceptions.EwmServiceUnsupportedStatusEnum;
 
