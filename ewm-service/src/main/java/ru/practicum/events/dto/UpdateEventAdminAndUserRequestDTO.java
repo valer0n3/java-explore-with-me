@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
 @Builder
 public class UpdateEventAdminAndUserRequestDTO {
     private String annotation;
-    private long category;
+    private Long category;
     private String description;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime eventDate;
     private LocationDto location;
-    private boolean paid;
-    private int participantLimit;
-    private boolean requestModeration;
+    private Boolean paid;
+    private Integer participantLimit;
+    private Boolean requestModeration;
     private StateActionEnum stateAction;
     private String title;
 }

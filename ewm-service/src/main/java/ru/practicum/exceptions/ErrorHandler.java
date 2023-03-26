@@ -2,7 +2,6 @@ package ru.practicum.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -41,7 +40,6 @@ public class ErrorHandler {
                 ewmServiceNotFound.getMessage(),
                 LocalDateTime.now());
     }
-
     //TODO delete this method or fix it
 /*    @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -61,6 +59,16 @@ public class ErrorHandler {
         return new EwmServiceException(HttpStatus.FORBIDDEN.toString(),
                 "For the requested operation the conditions are not met.",
                 ewmServiceForbiddenException.getMessage(),
+                LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public EwmServiceException unsupportedStatus(final EwmServiceUnsupportedStatusEnum ewmServiceUnsupportedStatusEnum) {
+        log.warn("Error 400: {}", ewmServiceUnsupportedStatusEnum.getMessage());
+        return new EwmServiceException(HttpStatus.BAD_REQUEST.toString(),
+                "The enum status is uncorrect",
+                ewmServiceUnsupportedStatusEnum.getMessage(),
                 LocalDateTime.now());
     }
 }

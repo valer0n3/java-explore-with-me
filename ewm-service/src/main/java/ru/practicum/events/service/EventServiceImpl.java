@@ -1,17 +1,22 @@
 package ru.practicum.events.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.categories.model.CategoryModel;
 import ru.practicum.categories.repository.CategoryRepository;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventRequestStatusUpdateRequestDto;
 import ru.practicum.events.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.events.dto.EventShortDto;
+import ru.practicum.events.dto.LocationDto;
 import ru.practicum.events.dto.NewEventDto;
 import ru.practicum.events.dto.ParticipationRequestDto;
 import ru.practicum.events.dto.UpdateEventAdminAndUserRequestDTO;
 import ru.practicum.events.enums.EventStateEnum;
+import ru.practicum.events.enums.StateActionEnum;
 import ru.practicum.events.mapper.EventMapper;
 import ru.practicum.events.mapper.LocationMapper;
 import ru.practicum.events.model.EventModel;
@@ -25,9 +30,11 @@ import ru.practicum.users.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
@@ -38,15 +45,20 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getAllEventsForCurrentUser(long userId, int from, int size) {
-        return null;
+        Pageable pageble = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
+        checkIfUserExists(userId);
+        return eventRepository.findByInitiatorId(userId, pageble).stream()
+                .map(eventMapper::mapEventModelToEventShortDto)
+                .collect(Collectors.toList());
     }
 
     @Override
+    @Transactional
     public EventFullDto createNewEvent(long userId, NewEventDto newEventDto) {
-        checkIfEventDateIs2HoursLaterThanCreationDate(newEventDto);
-        CategoryModel categoryModel = checkIfCategoryExists(newEventDto);
+        checkIfEventDateIs2HoursLaterThanCreationDate(newEventDto.getEventDate());
+        CategoryModel categoryModel = checkIfCategoryExists(newEventDto.getCategory());
         UserModel userModel = checkIfUserExists(userId);
-        LocationModel locationModel = checkIfLocationExistsIfNotThenSave(newEventDto);
+        LocationModel locationModel = checkIfLocationExistsIfNotThenSave(newEventDto.getLocation());
         EventModel eventModel = eventMapper.mapNewEventDtoToEventModel(newEventDto);
         eventModel.setCategory(categoryModel);
         eventModel.setInitiator(userModel);
@@ -56,42 +68,25 @@ public class EventServiceImpl implements EventService {
         return eventMapper.mapEventModelToEventFullDto(eventRepository.save(eventModel));
     }
 
-    private void checkIfEventDateIs2HoursLaterThanCreationDate(NewEventDto newEventDto) {
-        if (newEventDto.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new EwmServiceForbiddenException(String.format("Field: eventDate." +
-                    " Error: должно содержать дату, которая еще не наступила. Value: %s", newEventDto.getEventDate()));
-        }
-    }
-
-    private CategoryModel checkIfCategoryExists(NewEventDto newEventDto) {
-        return categoryRepository.findById(newEventDto.getCategory())
-                .orElseThrow(() -> new EwmServiceNotFound(String
-                        .format("Category with id: %d is not existed", newEventDto.getCategory())));
-    }
-
-    private UserModel checkIfUserExists(long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new EwmServiceNotFound(String
-                .format("User with id: %d is not existed", userId)));
-    }
-
-    private LocationModel checkIfLocationExistsIfNotThenSave(NewEventDto newEventDto) {
-        LocationModel locationModel = locationRepository.findByLatAndLon(newEventDto.getLocation().getLat(),
-                newEventDto.getLocation().getLon());
-        if (locationModel == null) {
-            return locationRepository.save(locationMapper.mapLocationDtoToLocationModel(newEventDto.getLocation()));
-        } else {
-            return locationModel;
-        }
-    }
-
     @Override
     public EventFullDto getEventByIdForCurrentUser(long userId, long eventId) {
-        return null;
+        checkIfUserExists(userId);
+        return eventMapper.mapEventModelToEventFullDto(eventRepository.findAllByInitiatorIdAndId(userId, eventId)
+                .orElseThrow(() -> new EwmServiceNotFound(String
+                        .format("Event with id=%d was not found", eventId))));
     }
 
     @Override
-    public EventFullDto updateEvent(long userId, long eventId, UpdateEventAdminAndUserRequestDTO updateEventUserRequestDto) {
-        return null;
+    @Transactional
+    public EventFullDto updateEvent(long userId, long eventId,
+                                    UpdateEventAdminAndUserRequestDTO updateEventUserRequestDto) {
+        checkIfUserExists(userId);
+        EventModel eventModelToBeChanged = eventRepository.findAllByInitiatorIdAndId(userId, eventId)
+                .orElseThrow(() -> new EwmServiceNotFound(String
+                        .format("Event with id=%d was not found", eventId)));
+        checkIfEvenStatusIsCanceledOrPending(eventModelToBeChanged);
+        return eventMapper.mapEventModelToEventFullDto(eventRepository
+                .save(updateEventModule(updateEventUserRequestDto, eventModelToBeChanged)));
     }
 
     @Override
@@ -100,6 +95,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
+    @Transactional
     public EventRequestStatusUpdateResultDto updateRequestStatusForCurrentUser(long userId, long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
         return null;
     }
@@ -123,4 +119,90 @@ public class EventServiceImpl implements EventService {
     public EventFullDto getEventWithFilterById(long id) {
         return null;
     }
+
+    private void checkIfEventDateIs2HoursLaterThanCreationDate(LocalDateTime localDateTime) {
+        if (localDateTime.isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new EwmServiceForbiddenException(String.format("Field: eventDate." +
+                    " Error: должно содержать дату, которая еще не наступила. Value: %s", localDateTime));
+        }
+    }
+
+    private CategoryModel checkIfCategoryExists(Long categoryId) {
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new EwmServiceNotFound(String
+                        .format("Category with id: %d is not existed", categoryId)));
+    }
+
+    private UserModel checkIfUserExists(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new EwmServiceNotFound(String
+                .format("User with id: %d is not existed", userId)));
+    }
+
+    //TODO change to Optional as IDEA suggests
+    private LocationModel checkIfLocationExistsIfNotThenSave(LocationDto locationDto) {
+        LocationModel locationModel = locationRepository.findByLatAndLon(locationDto.getLat(),
+                locationDto.getLon());
+        if (locationModel == null) {
+            return locationRepository.save(locationMapper.mapLocationDtoToLocationModel(locationDto));
+        } else {
+            return locationModel;
+        }
+    }
+
+    private void checkIfEvenStatusIsCanceledOrPending(EventModel updatedEventModel) {
+        if ((updatedEventModel.getState().toUpperCase().equals(EventStateEnum.CANCELED.toString())) ||
+                (updatedEventModel.getState().toUpperCase().equals(EventStateEnum.PENDING.toString()))) {
+        } else {
+            throw new EwmServiceForbiddenException("Only pending or canceled events can be changed");
+        }
+    }
+
+    private EventModel updateEventModule(UpdateEventAdminAndUserRequestDTO updateData,
+                                         EventModel eventModel) {
+        if (updateData.getAnnotation() != null) {
+            eventModel.setAnnotation(updateData.getAnnotation());
+        }
+        if (updateData.getCategory() != null) {
+            eventModel.setCategory(checkIfCategoryExists(updateData.getCategory()));
+        }
+        if (updateData.getDescription() != null) {
+            eventModel.setDescription(updateData.getDescription());
+        }
+        if (updateData.getEventDate() != null) {
+            checkIfEventDateIs2HoursLaterThanCreationDate(updateData.getEventDate());
+            eventModel.setEventDate(updateData.getEventDate());
+        }
+        if (updateData.getLocation() != null) {
+            eventModel.setLocation(checkIfLocationExistsIfNotThenSave(updateData.getLocation()));
+        }
+        if (updateData.getPaid() != null) {
+            eventModel.setPaid(updateData.getPaid());
+        }
+        if (updateData.getParticipantLimit() != null) {
+            eventModel.setParticipantLimit(updateData.getParticipantLimit());
+        }
+        if (updateData.getRequestModeration() != null) {
+            eventModel.setRequestModeration(updateData.getRequestModeration());
+        }
+        if (updateData.getStateAction() != null) {
+            StateActionEnum.checkIfUpdatedStateActionEnumIsCorrect(updateData.getStateAction());
+            updateStateAndPublishedDate(eventModel, updateData.getStateAction());
+        }
+        if (updateData.getTitle() != null) {
+            eventModel.setTitle(updateData.getTitle());
+        }
+        return eventModel;
+    }
+
+    private void updateStateAndPublishedDate(EventModel eventModel, StateActionEnum stateAction) {
+        if (stateAction == StateActionEnum.SEND_TO_REVIEW) {
+            eventModel.setState(EventStateEnum.PENDING.toString());
+        }
+        if (stateAction == StateActionEnum.CANCEL_REVIEW) {
+            eventModel.setState(EventStateEnum.CANCELED.toString());
+        }
+    }
 }
+
+
+

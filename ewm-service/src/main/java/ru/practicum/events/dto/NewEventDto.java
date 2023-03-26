@@ -22,7 +22,7 @@ public class NewEventDto {
     @NotBlank
     private String annotation;
     @NotNull
-    private long category;
+    private Long category;
     @Size(min = 20, max = 7000)
     @NotNull
     @NotBlank
@@ -33,11 +33,11 @@ public class NewEventDto {
     private LocalDateTime eventDate;
     @NotNull
     private LocationDto location;
-    //@Builder.Default
-    private boolean paid = false;
-    private int participantLimit;
-    //@Builder.Default
-    private boolean requestModeration = true;
+    @Builder.Default
+    private Boolean paid = false;
+    private Integer participantLimit;
+    @Builder.Default
+    private Boolean requestModeration = true;
     @NotNull
     @Size(min = 3, max = 120)
     private String title;

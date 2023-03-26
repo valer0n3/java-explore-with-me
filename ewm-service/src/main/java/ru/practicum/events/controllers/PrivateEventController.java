@@ -57,7 +57,7 @@ public class PrivateEventController {
     public EventFullDto updateEvent(
             @PathVariable("userId") @Min(0) long userId,
             @PathVariable("eventId") @Min(0) long eventId,
-            @Valid @RequestBody UpdateEventAdminAndUserRequestDTO updateEventUserRequestDto) {
+            @RequestBody UpdateEventAdminAndUserRequestDTO updateEventUserRequestDto) {
         return eventService.updateEvent(userId, eventId, updateEventUserRequestDto);
     }
 

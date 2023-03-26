@@ -20,9 +20,9 @@ public class LocationModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "location_id")
-    private long id;
+    private Long id;
     @Column(name = "latitude")
-    private float lat;
+    private Float lat;
     @Column(name = "longitude")
-    private float lon;
+    private Float lon;
 }

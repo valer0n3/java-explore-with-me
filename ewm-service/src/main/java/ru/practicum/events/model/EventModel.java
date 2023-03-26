@@ -27,7 +27,7 @@ public class EventModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "events_id  ")
-    private long id;
+    private Long id;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id")
     private CategoryModel category;
@@ -44,11 +44,11 @@ public class EventModel {
     @Column(name = "event_date ")
     private LocalDateTime eventDate;
     @Column(name = "paid")
-    private boolean paid;
+    private Boolean paid;
     @Column(name = " participant_limit")
-    private int participantLimit;
+    private Integer participantLimit;
     @Column(name = "request_moderation")
-    private boolean requestModeration;
+    private Boolean requestModeration;
     @Column(name = "title")
     private String title;
     @Column(name = "created_on")
