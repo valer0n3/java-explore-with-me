@@ -85,6 +85,7 @@ public class EventServiceImpl implements EventService {
                 .orElseThrow(() -> new EwmServiceNotFound(String
                         .format("Event with id=%d was not found", eventId)));
         checkIfEvenStatusIsCanceledOrPending(eventModelToBeChanged);
+        updateEventModuleStatePrivate(updateEventUserRequestDto, eventModelToBeChanged);
         return eventMapper.mapEventModelToEventFullDto(eventRepository
                 .save(updateEventModule(updateEventUserRequestDto, eventModelToBeChanged)));
     }
@@ -95,19 +96,45 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    @Transactional
     public EventRequestStatusUpdateResultDto updateRequestStatusForCurrentUser(long userId, long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
         return null;
     }
 
     @Override
-    public List<EventFullDto> getAllEvents(List<Integer> users, List<String> state, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
-        return null;
+    public List<EventFullDto> getAllEventsAdmin(List<Long> users, List<String> state, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
+        Pageable pageble = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
+        //TODO transfer to another method
+        if (users.isEmpty()) {
+            users = null;
+        }
+        if (state.isEmpty()) {
+            state = null;
+        }
+        if (categories.isEmpty()) {
+            categories = null;
+        }
+        return eventRepository.getAllEventsAdmin(users, state, categories, rangeStart, rangeEnd, pageble).stream()
+                .map(eventMapper::mapEventModelToEventFullDto).collect(Collectors.toList());
     }
 
     @Override
-    public EventFullDto updateEventAndStatus(long eventId, UpdateEventAdminAndUserRequestDTO updateEventAdminAndUserRequestDTO) {
-        return null;
+    @Transactional
+    public EventFullDto updateEventAndStatusAdmin(long eventId, UpdateEventAdminAndUserRequestDTO updateEventAdminAndUserRequestDTO) {
+        EventModel eventModelToUpdate = checkIfEventExists(eventId);
+
+
+    /*
+
+        checkIfEvenStatusIsCanceledOrPending(eventModelToBeChanged);
+        updateEventModuleStatePrivate(updateEventUserRequestDto, eventModelToBeChanged);
+        return eventMapper.mapEventModelToEventFullDto(eventRepository
+                .save(updateEventModule(updateEventUserRequestDto, eventModelToBeChanged)));*/
+    }
+
+    private EventModel checkIfEventExists(long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new EwmServiceNotFound(String
+                        .format("Event with id=%d was not found", eventId)));
     }
 
     @Override
@@ -184,17 +211,21 @@ public class EventServiceImpl implements EventService {
         if (updateData.getRequestModeration() != null) {
             eventModel.setRequestModeration(updateData.getRequestModeration());
         }
-        if (updateData.getStateAction() != null) {
-            StateActionEnum.checkIfUpdatedStateActionEnumIsCorrect(updateData.getStateAction());
-            updateStateAndPublishedDate(eventModel, updateData.getStateAction());
-        }
         if (updateData.getTitle() != null) {
             eventModel.setTitle(updateData.getTitle());
         }
         return eventModel;
     }
 
-    private void updateStateAndPublishedDate(EventModel eventModel, StateActionEnum stateAction) {
+    private void updateEventModuleStatePrivate(UpdateEventAdminAndUserRequestDTO updateData,
+                                               EventModel eventModel) {
+        if (updateData.getStateAction() != null) {
+            StateActionEnum.checkIfUpdatedStateActionEnumIsCorrect(updateData.getStateAction());
+            updateStateAndPublishedDatePrivate(eventModel, updateData.getStateAction());
+        }
+    }
+
+    private void updateStateAndPublishedDatePrivate(EventModel eventModel, StateActionEnum stateAction) {
         if (stateAction == StateActionEnum.SEND_TO_REVIEW) {
             eventModel.setState(EventStateEnum.PENDING.toString());
         }

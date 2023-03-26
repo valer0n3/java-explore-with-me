@@ -27,22 +27,22 @@ public class AdminEventController {
     private final EventServiceImpl eventService;
 
     @GetMapping
-    public List<EventFullDto> getAllEvents(@RequestParam(name = "users", required = false) List<Integer> users,
-                                           @RequestParam(name = "states", required = false) List<String> state,
-                                           @RequestParam(name = "categories", required = false) List<Long> categories,
-                                           @RequestParam(name = "rangeStart", required = false)
-                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
-                                           @RequestParam(name = "rangeEnd", required = false)
-                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-                                           @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) int from,
-                                           @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size) {
-        return eventService.getAllEvents(users, state, categories, rangeStart, rangeEnd, from, size);
+    public List<EventFullDto> getAllEventsAdmin(@RequestParam(name = "users", required = false) List<Long> users,
+                                                @RequestParam(name = "states", required = false) List<String> state,
+                                                @RequestParam(name = "categories", required = false) List<Long> categories,
+                                                @RequestParam(name = "rangeStart", required = false)
+                                                @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                                @RequestParam(name = "rangeEnd", required = false)
+                                                @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                                @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) int from,
+                                                @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size) {
+        return eventService.getAllEventsAdmin(users, state, categories, rangeStart, rangeEnd, from, size);
     }
 
     @PatchMapping("/{eventId}")
-    public EventFullDto updateEventAndStatus(
+    public EventFullDto updateEventAndStatusAdmin(
             @PathVariable("eventId") @Min(0) long eventId,
             @Valid @RequestBody UpdateEventAdminAndUserRequestDTO updateEventAdminAndUserRequestDTO) {
-        return eventService.updateEventAndStatus(eventId, updateEventAdminAndUserRequestDTO);
+        return eventService.updateEventAndStatusAdmin(eventId, updateEventAdminAndUserRequestDTO);
     }
 }

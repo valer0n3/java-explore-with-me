@@ -24,9 +24,9 @@ public interface EventService {
 
     EventRequestStatusUpdateResultDto updateRequestStatusForCurrentUser(long userId, long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto);
 
-    List<EventFullDto> getAllEvents(List<Integer> users, List<String> state, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
+    List<EventFullDto> getAllEventsAdmin(List<Long> users, List<String> state, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size);
 
-    EventFullDto updateEventAndStatus(long eventId, UpdateEventAdminAndUserRequestDTO updateEventAdminAndUserRequestDTO);
+    EventFullDto updateEventAndStatusAdmin(long eventId, UpdateEventAdminAndUserRequestDTO updateEventAdminAndUserRequestDTO);
 
     List<EventShortDto> getEventsWithFilter(
             String text, List<Long> categories, boolean paid, LocalDateTime rangeStart,
