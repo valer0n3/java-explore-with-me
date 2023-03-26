@@ -8,8 +8,15 @@ public enum StateActionEnum {
     PUBLISH_EVENT,
     REJECT_EVENT;
 
-    public static void checkIfUpdatedStateActionEnumIsCorrect(StateActionEnum state) {
+    public static void checkIfUpdatedStateActionIsCancelOrSend(StateActionEnum state) {
         if (state == CANCEL_REVIEW || state == SEND_TO_REVIEW) {
+        } else {
+            throw new EwmServiceUnsupportedStatusEnum(String.format("State action can only be: %s, or %s", StateActionEnum.CANCEL_REVIEW));
+        }
+    }
+
+    public static void checkIfUpdatedStateActionIsPublishOrRejectEvent(StateActionEnum state) {
+        if (state == PUBLISH_EVENT || state == REJECT_EVENT) {
         } else {
             throw new EwmServiceUnsupportedStatusEnum(String.format("State action can only be: %s, or %s", StateActionEnum.CANCEL_REVIEW));
         }

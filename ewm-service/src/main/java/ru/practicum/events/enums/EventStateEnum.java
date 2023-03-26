@@ -5,6 +5,7 @@ import ru.practicum.exceptions.EwmServiceUnsupportedStatusEnum;
 public enum EventStateEnum {
     PENDING,
     PUBLISHED,
+    REJECTED,
     CANCELED;
 
     public static EventStateEnum checkIfEventStateEnumIsCorrect(String state) {

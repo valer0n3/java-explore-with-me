@@ -119,22 +119,49 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventFullDto updateEventAndStatusAdmin(long eventId, UpdateEventAdminAndUserRequestDTO updateEventAdminAndUserRequestDTO) {
-        EventModel eventModelToUpdate = checkIfEventExists(eventId);
-
-
-    /*
-
-        checkIfEvenStatusIsCanceledOrPending(eventModelToBeChanged);
-        updateEventModuleStatePrivate(updateEventUserRequestDto, eventModelToBeChanged);
+    public EventFullDto updateEventAndStatusAdmin(long eventId, UpdateEventAdminAndUserRequestDTO updateEvent) {
+        EventModel eventModelToBeChanged = checkIfEventExists(eventId);
+        checkIfEventTimeIsMoreThan1Hour(eventModelToBeChanged);
+        // updateEventModuleStatePrivate(updateEventAdminAndUserRequestDTO, eventModelToBeChanged);
+        checkEventStateAndUpdateByAdmin(updateEvent, eventModelToBeChanged);
         return eventMapper.mapEventModelToEventFullDto(eventRepository
-                .save(updateEventModule(updateEventUserRequestDto, eventModelToBeChanged)));*/
+                .save(updateEventModule(updateEvent, eventModelToBeChanged)));
     }
 
-    private EventModel checkIfEventExists(long eventId) {
-        return eventRepository.findById(eventId)
-                .orElseThrow(() -> new EwmServiceNotFound(String
-                        .format("Event with id=%d was not found", eventId)));
+    private void checkIfEventTimeIsMoreThan1Hour(EventModel eventModelToBeChanged) {
+        if (eventModelToBeChanged.getEventDate() != null
+                && eventModelToBeChanged.getEventDate().isBefore(LocalDateTime.now().minusHours(1))) ;
+    }
+
+    private void checkEventStateAndUpdateByAdmin(UpdateEventAdminAndUserRequestDTO updateEvent,
+                                                 EventModel eventModelToBeChanged) {
+        if (updateEvent.getStateAction() != null) {
+            StateActionEnum.checkIfUpdatedStateActionIsPublishOrRejectEvent(updateEvent.getStateAction());
+            updateEventStateByAdmin(updateEvent, eventModelToBeChanged);
+        }
+    }
+
+    private void updateEventStateByAdmin(UpdateEventAdminAndUserRequestDTO updateEvent,
+                                         EventModel eventModelToBeChanged) {
+        if (updateEvent.getStateAction() == StateActionEnum.REJECT_EVENT) {
+            if (!eventModelToBeChanged.getState().equals(StateActionEnum.PUBLISH_EVENT.toString())) {
+                eventModelToBeChanged.setState(EventStateEnum.REJECTED.toString());
+            } else {
+                throw new EwmServiceForbiddenException(String
+                        .format("Cannot publish the event because it's not in the right state: %s",
+                                eventModelToBeChanged.getState()));
+            }
+        }
+        if (updateEvent.getStateAction() == StateActionEnum.PUBLISH_EVENT) {
+            if (!eventModelToBeChanged.getState().equals(EventStateEnum.PENDING.toString())) {
+                throw new EwmServiceForbiddenException(String
+                        .format("Cannot publish the event because it's not in the right state: %s",
+                                updateEvent.getStateAction()));
+            } else {
+                eventModelToBeChanged.setState(EventStateEnum.PUBLISHED.toString());
+                eventModelToBeChanged.setPublishedOn(LocalDateTime.now());
+            }
+        }
     }
 
     @Override
@@ -220,7 +247,7 @@ public class EventServiceImpl implements EventService {
     private void updateEventModuleStatePrivate(UpdateEventAdminAndUserRequestDTO updateData,
                                                EventModel eventModel) {
         if (updateData.getStateAction() != null) {
-            StateActionEnum.checkIfUpdatedStateActionEnumIsCorrect(updateData.getStateAction());
+            StateActionEnum.checkIfUpdatedStateActionIsCancelOrSend(updateData.getStateAction());
             updateStateAndPublishedDatePrivate(eventModel, updateData.getStateAction());
         }
     }
@@ -232,6 +259,12 @@ public class EventServiceImpl implements EventService {
         if (stateAction == StateActionEnum.CANCEL_REVIEW) {
             eventModel.setState(EventStateEnum.CANCELED.toString());
         }
+    }
+
+    private EventModel checkIfEventExists(long eventId) {
+        return eventRepository.findById(eventId)
+                .orElseThrow(() -> new EwmServiceNotFound(String
+                        .format("Event with id=%d was not found", eventId)));
     }
 }
 
