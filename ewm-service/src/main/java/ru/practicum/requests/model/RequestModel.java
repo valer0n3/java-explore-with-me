@@ -37,6 +37,6 @@ public class RequestModel {
     private EventModel event;
     @Column(name = "status")
     private String status;
-    @Column(name = "ctreated")
+    @Column(name = "created")
     private LocalDateTime created;
 }

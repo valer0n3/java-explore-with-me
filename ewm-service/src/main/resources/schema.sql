@@ -59,6 +59,8 @@ CREATE TABLE IF NOT EXISTS requests
     event_id    BIGINT REFERENCES events (events_id),
     status      VARCHAR(256),
     created     TIMESTAMP                               NOT NULL,
+    CONSTRAINT uq_user_event UNIQUE (user_id, event_id),
     CONSTRAINT pk_requests PRIMARY KEY (requests_id)
+
 );
 
