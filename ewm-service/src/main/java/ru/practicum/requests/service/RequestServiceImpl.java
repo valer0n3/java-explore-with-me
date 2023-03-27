@@ -7,7 +7,6 @@ import ru.practicum.enums.EventStateEnum;
 import ru.practicum.enums.RequestStatusEnum;
 import ru.practicum.events.model.EventModel;
 import ru.practicum.events.repository.EventRepository;
-import ru.practicum.events.service.EventServiceImpl;
 import ru.practicum.exceptions.EwmServiceConflictException;
 import ru.practicum.exceptions.EwmServiceNotFound;
 import ru.practicum.requests.dto.ParticipationRequestDto;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 public class RequestServiceImpl implements RequestService {
     private RequestRepository requestRepository;
     private EventRepository eventRepository;
-    private EventServiceImpl eventServiceImpl;
     private RequestMapper requestMapper;
     private UserRepository userRepository;
 
@@ -87,8 +85,7 @@ public class RequestServiceImpl implements RequestService {
 
     private void checkIfParticipantsLimitReached(long eventId, int participantLimit) {
         if (participantLimit > 0) {
-            int amountOfConfirmedParticipants = getAmountOfConfirmedParticipants(eventId,
-                    RequestStatusEnum.CONFIRMED.toString());
+            int amountOfConfirmedParticipants = getAmountOfConfirmedParticipants(eventId);
             if (amountOfConfirmedParticipants >= participantLimit) {
                 throw new EwmServiceConflictException(String
                         .format("Amount of current participants: %d reached limit: %d",
@@ -97,7 +94,7 @@ public class RequestServiceImpl implements RequestService {
         }
     }
 
-    private int getAmountOfConfirmedParticipants(long eventId, String toString) {
+    public int getAmountOfConfirmedParticipants(long eventId) {
         return requestRepository.getAmountOfParticipants(eventId,
                 RequestStatusEnum.CONFIRMED.toString());
     }

@@ -7,28 +7,36 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.categories.model.CategoryModel;
 import ru.practicum.categories.repository.CategoryRepository;
+import ru.practicum.enums.EventStateEnum;
+import ru.practicum.enums.RequestStatusEnum;
+import ru.practicum.enums.StateActionEnum;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventRequestStatusUpdateRequestDto;
 import ru.practicum.events.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.dto.LocationDto;
 import ru.practicum.events.dto.NewEventDto;
-import ru.practicum.events.dto.ParticipationRequestDto;
 import ru.practicum.events.dto.UpdateEventAdminAndUserRequestDTO;
-import ru.practicum.enums.EventStateEnum;
-import ru.practicum.enums.StateActionEnum;
 import ru.practicum.events.mapper.EventMapper;
 import ru.practicum.events.mapper.LocationMapper;
 import ru.practicum.events.model.EventModel;
 import ru.practicum.events.model.LocationModel;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.events.repository.LocationRepository;
+import ru.practicum.exceptions.EwmServiceConflictException;
 import ru.practicum.exceptions.EwmServiceForbiddenException;
 import ru.practicum.exceptions.EwmServiceNotFound;
+import ru.practicum.requests.dto.ParticipationRequestDto;
+import ru.practicum.requests.mapper.RequestMapper;
+import ru.practicum.requests.model.RequestModel;
+import ru.practicum.requests.repository.RequestRepository;
+import ru.practicum.requests.service.RequestServiceImpl;
 import ru.practicum.users.model.UserModel;
 import ru.practicum.users.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,6 +50,9 @@ public class EventServiceImpl implements EventService {
     private final LocationRepository locationRepository;
     private final LocationMapper locationMapper;
     private final EventMapper eventMapper;
+    private final RequestRepository requestRepository;
+    private final RequestMapper requestMapper;
+    private final RequestServiceImpl requestServiceImpl;
 
     @Override
     public List<EventShortDto> getAllEventsForCurrentUser(long userId, int from, int size) {
@@ -92,12 +103,51 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<ParticipationRequestDto> getRequestsForCurrentUser(long userId, long eventId) {
-        return null;
+        return requestRepository.findAllByEventIdAndEventId(userId, eventId).stream()
+                .map(requestMapper::mapRequestModelToParticipationRequestDto).collect(Collectors.toList());
     }
 
     @Override
-    public EventRequestStatusUpdateResultDto updateRequestStatusForCurrentUser(long userId, long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
-        return null;
+    @Transactional
+    public EventRequestStatusUpdateResultDto updateRequestStatusForCurrentUser(
+            long userId, long eventId, EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
+        EventModel eventModel = checkIfEventExists(eventId);
+        if (checkIfLimitIs0rModeratonDisabled(eventModel)) {
+            return new EventRequestStatusUpdateResultDto(Collections.emptyList(), Collections.emptyList());
+        }
+        List<RequestModel> confirmedList = new ArrayList<>();
+        List<RequestModel> rejectedList = new ArrayList<>();
+        List<RequestModel> requestsToBeUpdated = requestRepository
+                .findAllByIdIn(eventRequestStatusUpdateRequestDto.getRequestIds());
+        int amountOfConfirmedParticipants = requestServiceImpl.getAmountOfConfirmedParticipants(eventId);
+        int participantsLimit = eventModel.getParticipantLimit();
+        for (RequestModel requestModel : requestsToBeUpdated) {
+            if (requestModel.getStatus().toUpperCase().equals(EventStateEnum.PENDING.toString())) {
+                if (eventRequestStatusUpdateRequestDto.getStatus().toString().equals(RequestStatusEnum.CONFIRMED.toString())) {
+                    if (amountOfConfirmedParticipants >= participantsLimit) {
+                        requestModel.setStatus(RequestStatusEnum.REJECTED.toString());
+                        rejectedList.add(requestModel);
+                    } else {
+                        requestModel.setStatus(RequestStatusEnum.CONFIRMED.toString());
+                        confirmedList.add(requestModel);
+                        amountOfConfirmedParticipants++;
+                    }
+                } else {
+                    rejectedList.add(requestModel);
+                }
+            } else {
+                throw new EwmServiceConflictException(String
+                        .format("Request id: %s with state: %s not in PENDING state.",
+                                requestModel.getId(), requestModel.getStatus()));
+            }
+        }
+    /*    requestRepository.saveAll(confirmedList);
+        requestRepository.saveAll(rejectedList);*/
+        return requestMapper.mapConfirmedOrRejectedToEventRequestStatusUpdateResultDto(confirmedList, rejectedList);
+    }
+
+    private boolean checkIfLimitIs0rModeratonDisabled(EventModel eventModel) {
+        return (eventModel.getParticipantLimit() == 0 || !eventModel.getRequestModeration());
     }
 
     @Override

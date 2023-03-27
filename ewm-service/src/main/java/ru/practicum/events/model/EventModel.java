@@ -1,4 +1,3 @@
-
 package ru.practicum.events.model;
 
 import lombok.AllArgsConstructor;
@@ -57,5 +56,4 @@ public class EventModel {
     private LocalDateTime publishedOn;
     @Column(name = "state")
     private String state;
-
 }

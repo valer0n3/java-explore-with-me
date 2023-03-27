@@ -17,9 +17,9 @@ import ru.practicum.events.dto.EventRequestStatusUpdateRequestDto;
 import ru.practicum.events.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.dto.NewEventDto;
-import ru.practicum.events.dto.ParticipationRequestDto;
 import ru.practicum.events.dto.UpdateEventAdminAndUserRequestDTO;
 import ru.practicum.events.service.EventServiceImpl;
+import ru.practicum.requests.dto.ParticipationRequestDto;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
@@ -72,6 +72,6 @@ public class PrivateEventController {
             @PathVariable("userId") @Min(0) long userId,
             @PathVariable("eventId") @Min(0) long eventId,
             @Valid @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
-        return updateRequestStatusForCurrentUser(userId, eventId, eventRequestStatusUpdateRequestDto);
-    }
+        return eventService.updateRequestStatusForCurrentUser(userId, eventId, eventRequestStatusUpdateRequestDto);
+   }
 }

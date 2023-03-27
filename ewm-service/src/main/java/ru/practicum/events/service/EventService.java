@@ -5,8 +5,8 @@ import ru.practicum.events.dto.EventRequestStatusUpdateRequestDto;
 import ru.practicum.events.dto.EventRequestStatusUpdateResultDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.dto.NewEventDto;
-import ru.practicum.events.dto.ParticipationRequestDto;
 import ru.practicum.events.dto.UpdateEventAdminAndUserRequestDTO;
+import ru.practicum.requests.dto.ParticipationRequestDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

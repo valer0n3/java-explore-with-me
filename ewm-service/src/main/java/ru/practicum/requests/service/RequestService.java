@@ -9,7 +9,6 @@ public interface RequestService {
 
     ParticipationRequestDto saveNewRequest(Long userId, Long eventId);
 
-
     ParticipationRequestDto updateRequestStatusToCancel(Long userId,
                                                         Long requestId);
 }
