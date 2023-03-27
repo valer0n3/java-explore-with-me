@@ -7,7 +7,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -15,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.requests.service.RequestService;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.util.List;
 
@@ -41,8 +39,7 @@ public class ControllerRequest {
     @PatchMapping("/{requestId}/cancel")
     public ParticipationRequestDto updateRequestStatusToCancel(
             @PathVariable("userId") @Min(0) Long userId,
-            @PathVariable("requestId") @Min(0) Long requestId,
-            @Valid @RequestBody ParticipationRequestDto participationRequestDto) {
-        return requestService.updateRequestStatusToCancel(userId, requestId, participationRequestDto);
+            @PathVariable("requestId") @Min(0) Long requestId) {
+        return requestService.updateRequestStatusToCancel(userId, requestId);
     }
 }

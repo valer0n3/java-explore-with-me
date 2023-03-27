@@ -11,6 +11,5 @@ public interface RequestService {
 
 
     ParticipationRequestDto updateRequestStatusToCancel(Long userId,
-                                                        Long requestId,
-                                                        ParticipationRequestDto participationRequestDto);
+                                                        Long requestId);
 }

@@ -19,6 +19,7 @@ import ru.practicum.users.repository.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -32,7 +33,9 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> getAllRequestsOfcurrentUser(Long userId) {
-        return null;
+        return requestRepository.findAllByRequesterId(userId).stream()
+                .map(requestMapper::mapRequestModelToParticipationRequestDto)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -100,7 +103,11 @@ public class RequestServiceImpl implements RequestService {
     }
 
     @Override
-    public ParticipationRequestDto updateRequestStatusToCancel(Long userId, Long requestId, ParticipationRequestDto participationRequestDto) {
-        return null;
+    public ParticipationRequestDto updateRequestStatusToCancel(Long userId, Long requestId) {
+        RequestModel requestModel = requestRepository.findByIdAndRequesterId(requestId, userId)
+                .orElseThrow(() -> new EwmServiceNotFound(String
+                        .format("Request id: %s for user id: %s was not found", requestId, userId)));
+        requestModel.setStatus(RequestStatusEnum.CANCELED.toString());
+        return requestMapper.mapRequestModelToParticipationRequestDto(requestRepository.save(requestModel));
     }
 }
