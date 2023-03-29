@@ -8,6 +8,7 @@ import ru.practicum.events.dto.NewEventDto;
 import ru.practicum.events.dto.UpdateEventAdminAndUserRequestDTO;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,8 +30,8 @@ public interface EventService {
     EventFullDto updateEventAndStatusAdmin(long eventId, UpdateEventAdminAndUserRequestDTO updateEventAdminAndUserRequestDTO);
 
     List<EventShortDto> getEventsWithFilter(
-            String text, List<Long> categories, boolean paid, LocalDateTime rangeStart,
-            LocalDateTime rangeEnd, boolean onlyAvailable, String sort, int from, int size);
+            String text, List<Long> categories, Boolean paid, LocalDateTime rangeStart,
+            LocalDateTime rangeEnd, Boolean onlyAvailable, String sort, int from, int size, HttpServletRequest httpServletRequest);
 
-    EventFullDto getEventWithFilterById(long id);
+    EventFullDto getEventWithFilterById(Long eventId, HttpServletRequest httpServletRequest);
 }

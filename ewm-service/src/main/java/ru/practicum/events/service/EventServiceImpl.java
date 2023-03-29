@@ -5,8 +5,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.GetStatDto;
 import ru.practicum.categories.model.CategoryModel;
 import ru.practicum.categories.repository.CategoryRepository;
+import ru.practicum.controller.StatClientController;
 import ru.practicum.enums.EventStateEnum;
 import ru.practicum.enums.RequestStatusEnum;
 import ru.practicum.enums.StateActionEnum;
@@ -28,16 +30,19 @@ import ru.practicum.exceptions.EwmServiceForbiddenException;
 import ru.practicum.exceptions.EwmServiceNotFound;
 import ru.practicum.requests.dto.ParticipationRequestDto;
 import ru.practicum.requests.mapper.RequestMapper;
+import ru.practicum.requests.model.EventIdAndAmountOfConfirmedRequestsModel;
 import ru.practicum.requests.model.RequestModel;
 import ru.practicum.requests.repository.RequestRepository;
 import ru.practicum.requests.service.RequestServiceImpl;
 import ru.practicum.users.model.UserModel;
 import ru.practicum.users.repository.UserRepository;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,6 +58,9 @@ public class EventServiceImpl implements EventService {
     private final RequestRepository requestRepository;
     private final RequestMapper requestMapper;
     private final RequestServiceImpl requestServiceImpl;
+    private final StatClientController statClientController;
+    private static final LocalDateTime DEFAULT_START_DATE = LocalDateTime.of(2000, 01, 01, 00, 00, 00);
+    private static final LocalDateTime DEFAULT_END_DATE = LocalDateTime.of(2099, 01, 01, 01, 00, 00);
 
     @Override
     public List<EventShortDto> getAllEventsForCurrentUser(long userId, int from, int size) {
@@ -215,13 +223,103 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventShortDto> getEventsWithFilter(String text, List<Long> categories, boolean paid, LocalDateTime rangeStart, LocalDateTime rangeEnd, boolean onlyAvailable, String sort, int from, int size) {
+    public List<EventShortDto> getEventsWithFilter(String text,
+                                                   List<Long> categories,
+                                                   Boolean paid,
+                                                   LocalDateTime rangeStart,
+                                                   LocalDateTime rangeEnd,
+                                                   Boolean onlyAvailable,
+                                                   String sort,
+                                                   int from, int size,
+                                                   HttpServletRequest httpServletRequest) {
+        Pageable pageable = PageRequest.of(from / size, size/*, Sort.by("start").descending()*/);
+        if (rangeStart == null || rangeEnd == null) {
+            rangeStart = LocalDateTime.now();
+            rangeEnd = DEFAULT_END_DATE;
+        }
+        System.out.println("**********: " + rangeStart + "\n" + rangeEnd);
+        List<EventModel> eventModel = eventRepository.findEventByCustomFilter(rangeStart,
+                rangeEnd,
+                EventStateEnum.PUBLISHED.toString(),
+                text,
+                categories,
+                paid,
+                pageable);
+        //Собираем эвенты в лист id шников эвентов
+        List<Long> listEventsIds = eventModel.stream().map(EventModel::getId).collect(Collectors.toList());
+        //Получаем лист с дтошкой в которйо харнится EventId и AmountConfirmedRequests
+        List<EventIdAndAmountOfConfirmedRequestsModel> listOfAmountConfirmedRequestsForEachEvent = getListOfParticipants(listEventsIds);
+        //Получаем мапу  <EventsID, AmountOfConfirmedRequests>>
+        Map<Long, Long> mapOfConfirmedRequests = getMapOfEventsAndAmountOfConfirmedRequests(listOfAmountConfirmedRequestsForEachEvent);
+        //проверить только события у которых не исчерпан лимит запросов на участиеavailable или все
+        //available = faulse по умолчанию.
+        //if available true - then filter else do nothing
+        List<EventShortDto> eventShortDtos = filterIfRequestLimitIsNotReached(eventModel, onlyAvailable, mapOfConfirmedRequests);
+        //вставляем в DTO количество подтвержденных реквестов на участие в эвенте:
+        eventShortDtos.stream()
+                .forEach(eventShortDto -> eventShortDto
+                        .setConfirmedRequests(mapOfConfirmedRequests
+                                .getOrDefault(eventShortDto.getId(), 0L)));
+        //TODO дописать тоже самое для получения просмотров...
+
+
+        //Произвести сортировку в зависимости от параметра sort
+        if (sort != null) {
+        }
+        //TODO generate
+        // statClientController.addNewStatistic(httpServletRequest);
         return null;
     }
 
+    private List<EventShortDto> filterIfRequestLimitIsNotReached(List<EventModel> eventModel,
+                                                                 boolean onlyAvailable,
+                                                                 Map<Long, Long> mapOfConfirmedRequests) {
+        if (onlyAvailable) {
+            return eventModel.stream().filter(eventModel1 -> {
+                        if (eventModel1.getParticipantLimit() == 0) {
+                            return true;
+                        } else {
+                            return eventModel1.getParticipantLimit() < mapOfConfirmedRequests.getOrDefault(eventModel1.getId(), 0L);
+                        }
+                    })
+                    .map(eventMapper::mapEventModelToEventShortDto).collect(Collectors.toList());
+        } else {
+            return eventModel.stream()
+                    .map(eventMapper::mapEventModelToEventShortDto).collect(Collectors.toList());
+        }
+    }
+
+    private Map<Long, Long> getMapOfEventsAndAmountOfConfirmedRequests(
+            List<EventIdAndAmountOfConfirmedRequestsModel> confirmedRequestsModel) {
+        return confirmedRequestsModel.stream()
+                .collect(Collectors.toMap(EventIdAndAmountOfConfirmedRequestsModel::getEventId,
+                        EventIdAndAmountOfConfirmedRequestsModel::getAmountConfirmedRequests));
+    }
+
+    private List<EventIdAndAmountOfConfirmedRequestsModel> getListOfParticipants(List<Long> listEventsIds) {
+        return requestRepository.getListOfAmountParticipants(listEventsIds, RequestStatusEnum.CONFIRMED.toString());
+    }
+
     @Override
-    public EventFullDto getEventWithFilterById(long id) {
-        return null;
+    public EventFullDto getEventWithFilterById(Long eventId, HttpServletRequest httpServletRequest) {
+        EventModel eventModel = checkIfEventExists(eventId);
+        checkIfEventPublished(eventModel.getState());
+        long amountOfConfirmedRequests = requestServiceImpl.getAmountOfConfirmedParticipants(eventId);
+        long amountOfViews = 0;
+        List<GetStatDto> getStatDto = statClientController.getStatistic(DEFAULT_START_DATE, DEFAULT_END_DATE, List.of(httpServletRequest.getRequestURI()), null);
+        if (getStatDto == null || getStatDto.isEmpty()) {
+            amountOfViews = 0;
+        } else {
+            amountOfViews = getStatDto.get(getStatDto.size() - 1).getHits();
+        }
+        statClientController.addNewStatistic(httpServletRequest);
+        return eventMapper.mapEventModelToEventFullDto(eventModel, amountOfConfirmedRequests, amountOfViews);
+    }
+
+    private void checkIfEventPublished(String state) {
+        if (!state.toUpperCase().equals(EventStateEnum.PUBLISHED.toString())) {
+            throw new EwmServiceNotFound(String.format("Event status: %s is not Published", state.toString()));
+        }
     }
 
     private void checkIfEventDateIs2HoursLaterThanCreationDate(LocalDateTime localDateTime) {

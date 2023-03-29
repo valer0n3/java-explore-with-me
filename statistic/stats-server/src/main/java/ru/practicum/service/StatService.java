@@ -9,5 +9,5 @@ import java.util.List;
 public interface StatService {
     PostStatDto addNewStatistic(PostStatDto postStatDto);
 
-    List<GetStatDto> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique);
+    List<GetStatDto> getStatistics(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique);
 }

@@ -22,16 +22,17 @@ public class StatController {
 
     @PostMapping("/hit")
     public PostStatDto addNewStatistic(@Validated @RequestBody PostStatDto postStatDto) {
+        System.out.println("********: " + postStatDto);
         return statService.addNewStatistic(postStatDto);
     }
 
     @GetMapping("/stats")
-    public List<GetStatDto> getStatistics(@RequestParam(name = "start")
+    public List<GetStatDto> getStatistics(@RequestParam(name = "start", required = false)
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
-                                          @RequestParam(name = "end")
+                                          @RequestParam(name = "end",required = false)
                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
                                           @RequestParam(name = "uris", required = false) List<String> uris,
-                                          @RequestParam(name = "unique", defaultValue = "false") boolean unique) {
+                                          @RequestParam(name = "unique", defaultValue = "false") Boolean unique) {
         return statService.getStatistics(start, end, uris, unique);
     }
 }

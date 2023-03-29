@@ -12,6 +12,7 @@ import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.service.EventServiceImpl;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -27,20 +28,23 @@ public class PublicEventController {
     public List<EventShortDto> getEventsWithFilter(
             @RequestParam(name = "text", required = false) String text,
             @RequestParam(name = "categories", required = false) List<Long> categories,
-            @RequestParam(name = "paid", required = false) boolean paid,
+            @RequestParam(name = "paid", required = false) Boolean paid,
             @RequestParam(name = "rangeStart", required = false)
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
             @RequestParam(name = "rangeEnd", required = false)
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
-            @RequestParam(name = "onlyAvailable", required = false, defaultValue = "false") boolean onlyAvailable,
+            @RequestParam(name = "onlyAvailable", required = false, defaultValue = "false") Boolean onlyAvailable,
             @RequestParam(name = "sort", required = false) String sort,
             @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) int from,
-            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size) {
-        return eventService.getEventsWithFilter(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, sort, from, size);
+            @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size,
+            HttpServletRequest httpServletRequest) {
+        return eventService.getEventsWithFilter(text, categories, paid, rangeStart, rangeEnd,
+                onlyAvailable, sort, from, size, httpServletRequest);
     }
 
     @GetMapping("/{id}")
-    public EventFullDto getEventWithFilterById(@PathVariable("id") @Min(0) long id) {
-        return eventService.getEventWithFilterById(id);
+    public EventFullDto getEventWithFilterById(@PathVariable("id") @Min(0) Long eventId,
+                                               HttpServletRequest httpServletRequest) {
+        return eventService.getEventWithFilterById(eventId, httpServletRequest);
     }
 }
