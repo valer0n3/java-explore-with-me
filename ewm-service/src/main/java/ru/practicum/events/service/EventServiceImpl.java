@@ -148,8 +148,8 @@ public class EventServiceImpl implements EventService {
                                 requestModel.getId(), requestModel.getStatus()));
             }
         }
-    /*    requestRepository.saveAll(confirmedList);
-        requestRepository.saveAll(rejectedList);*/
+        requestRepository.saveAll(confirmedList);
+        requestRepository.saveAll(rejectedList);
         return requestMapper.mapConfirmedOrRejectedToEventRequestStatusUpdateResultDto(confirmedList, rejectedList);
     }
 
@@ -258,6 +258,15 @@ public class EventServiceImpl implements EventService {
         //TODO дописать тоже самое для получения просмотров...
         Map<Long, Long> mapOfEventsIdToAmountOfViews = statClientController.getStatistic(DEFAULT_START_DATE,
                 DEFAULT_END_DATE, listEventsIds, null);
+        addAmountOFConfirmedRequestsAndViews(eventShortDtos, mapOfConfirmedRequests, mapOfEventsIdToAmountOfViews);
+        //Произвести сортировку в зависимости от параметра sort
+       /* if (sort != null) {
+        }*/
+        statClientController.addNewStatistic(httpServletRequest);
+        return eventShortDtos;
+    }
+
+    private void addAmountOFConfirmedRequestsAndViews(List<EventShortDto> eventShortDtos, Map<Long, Long> mapOfConfirmedRequests, Map<Long, Long> mapOfEventsIdToAmountOfViews) {
         eventShortDtos.stream()
                 .forEach(eventShortDto -> {
                             eventShortDto.setConfirmedRequests(mapOfConfirmedRequests
@@ -265,12 +274,6 @@ public class EventServiceImpl implements EventService {
                             eventShortDto.setViews(mapOfEventsIdToAmountOfViews.getOrDefault(eventShortDto.getId(), 0L));
                         }
                 );
-        //Произвести сортировку в зависимости от параметра sort
-       /* if (sort != null) {
-        }*/
-        //TODO generate
-        statClientController.addNewStatistic(httpServletRequest);
-        return eventShortDtos;
     }
 
     private List<Long> getListEventdIds(List<EventModel> eventModel) {
