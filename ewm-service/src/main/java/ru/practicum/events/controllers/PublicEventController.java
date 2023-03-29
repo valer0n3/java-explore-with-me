@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.controller.StatClientController;
 import ru.practicum.events.dto.EventFullDto;
 import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.service.EventServiceImpl;
@@ -23,6 +24,7 @@ import java.util.List;
 @Validated
 public class PublicEventController {
     private final EventServiceImpl eventService;
+    private final StatClientController statClientController;
 
     @GetMapping
     public List<EventShortDto> getEventsWithFilter(

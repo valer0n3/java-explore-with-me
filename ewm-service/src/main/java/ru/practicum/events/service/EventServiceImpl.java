@@ -5,7 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.practicum.GetStatDto;
 import ru.practicum.categories.model.CategoryModel;
 import ru.practicum.categories.repository.CategoryRepository;
 import ru.practicum.controller.StatClientController;
@@ -246,7 +245,7 @@ public class EventServiceImpl implements EventService {
                 paid,
                 pageable);
         //Собираем эвенты в лист id шников эвентов
-        List<Long> listEventsIds = eventModel.stream().map(EventModel::getId).collect(Collectors.toList());
+        List<Long> listEventsIds = getListEventdIds(eventModel);
         //Получаем лист с дтошкой в которйо харнится EventId и AmountConfirmedRequests
         List<EventIdAndAmountOfConfirmedRequestsModel> listOfAmountConfirmedRequestsForEachEvent = getListOfParticipants(listEventsIds);
         //Получаем мапу  <EventsID, AmountOfConfirmedRequests>>
@@ -256,19 +255,26 @@ public class EventServiceImpl implements EventService {
         //if available true - then filter else do nothing
         List<EventShortDto> eventShortDtos = filterIfRequestLimitIsNotReached(eventModel, onlyAvailable, mapOfConfirmedRequests);
         //вставляем в DTO количество подтвержденных реквестов на участие в эвенте:
-        eventShortDtos.stream()
-                .forEach(eventShortDto -> eventShortDto
-                        .setConfirmedRequests(mapOfConfirmedRequests
-                                .getOrDefault(eventShortDto.getId(), 0L)));
         //TODO дописать тоже самое для получения просмотров...
-
-
+        Map<Long, Long> mapOfEventsIdToAmountOfViews = statClientController.getStatistic(DEFAULT_START_DATE,
+                DEFAULT_END_DATE, listEventsIds, null);
+        eventShortDtos.stream()
+                .forEach(eventShortDto -> {
+                            eventShortDto.setConfirmedRequests(mapOfConfirmedRequests
+                                    .getOrDefault(eventShortDto.getId(), 0L));
+                            eventShortDto.setViews(mapOfEventsIdToAmountOfViews.getOrDefault(eventShortDto.getId(), 0L));
+                        }
+                );
         //Произвести сортировку в зависимости от параметра sort
-        if (sort != null) {
-        }
+       /* if (sort != null) {
+        }*/
         //TODO generate
-        // statClientController.addNewStatistic(httpServletRequest);
-        return null;
+        statClientController.addNewStatistic(httpServletRequest);
+        return eventShortDtos;
+    }
+
+    private List<Long> getListEventdIds(List<EventModel> eventModel) {
+        return eventModel.stream().map(EventModel::getId).collect(Collectors.toList());
     }
 
     private List<EventShortDto> filterIfRequestLimitIsNotReached(List<EventModel> eventModel,
@@ -306,11 +312,11 @@ public class EventServiceImpl implements EventService {
         checkIfEventPublished(eventModel.getState());
         long amountOfConfirmedRequests = requestServiceImpl.getAmountOfConfirmedParticipants(eventId);
         long amountOfViews = 0;
-        List<GetStatDto> getStatDto = statClientController.getStatistic(DEFAULT_START_DATE, DEFAULT_END_DATE, List.of(httpServletRequest.getRequestURI()), null);
-        if (getStatDto == null || getStatDto.isEmpty()) {
+        Map<Long, Long> mapOfEventsIdToAmountOfViews = statClientController.getStatistic(DEFAULT_START_DATE, DEFAULT_END_DATE, List.of(eventId), null);
+        if (mapOfEventsIdToAmountOfViews == null || mapOfEventsIdToAmountOfViews.isEmpty()) {
             amountOfViews = 0;
         } else {
-            amountOfViews = getStatDto.get(getStatDto.size() - 1).getHits();
+            amountOfViews = mapOfEventsIdToAmountOfViews.get(eventId);
         }
         statClientController.addNewStatistic(httpServletRequest);
         return eventMapper.mapEventModelToEventFullDto(eventModel, amountOfConfirmedRequests, amountOfViews);
