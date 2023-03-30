@@ -1,6 +1,7 @@
 package ru.practicum.exceptions;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
@@ -28,6 +29,16 @@ public class ErrorHandler {
         return new EwmServiceException(HttpStatus.CONFLICT.toString(),
                 "Integrity constraint has been violated.",
                 ewmServiceConflictException.getMessage(),
+                LocalDateTime.now());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public EwmServiceException conflictIntegrityViolation(DataIntegrityViolationException dataIntegrityViolationException) {
+        log.warn("Error 409: {}", dataIntegrityViolationException.getMessage());
+        return new EwmServiceException(HttpStatus.CONFLICT.toString(),
+                "Integrity constraint has been violated.",
+                dataIntegrityViolationException.getMessage(),
                 LocalDateTime.now());
     }
 

@@ -140,6 +140,7 @@ public class EventServiceImpl implements EventService {
                         amountOfConfirmedParticipants++;
                     }
                 } else {
+                    requestModel.setStatus(RequestStatusEnum.REJECTED.toString());
                     rejectedList.add(requestModel);
                 }
             } else {
@@ -200,6 +201,7 @@ public class EventServiceImpl implements EventService {
     private void checkEventStateAndUpdateByAdmin(UpdateEventAdminAndUserRequestDTO updateEvent,
                                                  EventModel eventModelToBeChanged) {
         if (updateEvent.getStateAction() != null) {
+
             StateActionEnum.checkIfUpdatedStateActionIsPublishOrRejectEvent(updateEvent.getStateAction());
             updateEventStateByAdmin(updateEvent, eventModelToBeChanged);
         }
@@ -208,17 +210,17 @@ public class EventServiceImpl implements EventService {
     private void updateEventStateByAdmin(UpdateEventAdminAndUserRequestDTO updateEvent,
                                          EventModel eventModelToBeChanged) {
         if (updateEvent.getStateAction() == StateActionEnum.REJECT_EVENT) {
-            if (!eventModelToBeChanged.getState().equals(StateActionEnum.PUBLISH_EVENT.toString())) {
-                eventModelToBeChanged.setState(EventStateEnum.REJECTED.toString());
+            if (!eventModelToBeChanged.getState().equals(EventStateEnum.PUBLISHED.toString())) {
+                eventModelToBeChanged.setState(EventStateEnum.CANCELED.toString());
             } else {
-                throw new EwmServiceForbiddenException(String
+                throw new EwmServiceConflictException(String
                         .format("Cannot publish the event because it's not in the right state: %s",
                                 eventModelToBeChanged.getState()));
             }
         }
         if (updateEvent.getStateAction() == StateActionEnum.PUBLISH_EVENT) {
             if (!eventModelToBeChanged.getState().equals(EventStateEnum.PENDING.toString())) {
-                throw new EwmServiceForbiddenException(String
+                throw new EwmServiceConflictException(String
                         .format("Cannot publish the event because it's not in the right state: %s",
                                 updateEvent.getStateAction()));
             } else {
@@ -354,8 +356,8 @@ public class EventServiceImpl implements EventService {
 
     private void checkIfEventDateIs2HoursLaterThanCreationDate(LocalDateTime localDateTime) {
         if (localDateTime.isBefore(LocalDateTime.now().plusHours(2))) {
-            throw new EwmServiceForbiddenException(String.format("Field: eventDate." +
-                    " Error: должно содержать дату, которая еще не наступила. Value: %s", localDateTime));
+            throw new EwmServiceConflictException(String.format("Field: eventDate." +
+                    " Error: date should not be in past. Value: %s", localDateTime));
         }
     }
 
@@ -385,7 +387,7 @@ public class EventServiceImpl implements EventService {
         if ((updatedEventModel.getState().toUpperCase().equals(EventStateEnum.CANCELED.toString())) ||
                 (updatedEventModel.getState().toUpperCase().equals(EventStateEnum.PENDING.toString()))) {
         } else {
-            throw new EwmServiceForbiddenException("Only pending or canceled events can be changed");
+            throw new EwmServiceConflictException("Only pending or canceled events can be changed");
         }
     }
 
