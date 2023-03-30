@@ -13,21 +13,23 @@ import ru.practicum.compilations.service.CompilationService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/compilations/")
+@RequestMapping("/compilations")
 @AllArgsConstructor
 @Validated
 public class CompilationPublicController {
     private final CompilationService compilationService;
 
     @GetMapping
-    public List<CompilationDto> getAllCompilations(@RequestParam(name = "pinned") Boolean pinned,
+    public List<CompilationDto> getAllCompilations(@RequestParam(name = "pinned", defaultValue = "true") Boolean pinned,
                                                    @RequestParam(name = "from", defaultValue = "0") Integer from,
                                                    @RequestParam(name = "size", defaultValue = "10") Integer size) {
+        System.out.println("****** compilations");
         return compilationService.getAllCompilations(pinned, from, size);
     }
 
     @GetMapping("{compId}")
     public CompilationDto getCompilation(@PathVariable("compId") Long compId) {
         return compilationService.getCompilation(compId);
+
     }
 }

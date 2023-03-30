@@ -158,10 +158,15 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventFullDto> getAllEventsAdmin(List<Long> users, List<String> state, List<Long> categories, LocalDateTime rangeStart, LocalDateTime rangeEnd, int from, int size) {
+    public List<EventFullDto> getAllEventsAdmin(List<Long> users,
+                                                List<String> state,
+                                                List<Long> categories,
+                                                LocalDateTime rangeStart,
+                                                LocalDateTime rangeEnd,
+                                                int from, int size) {
         Pageable pageble = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
         //TODO transfer to another method
-        if (users.isEmpty()) {
+    /*    if (users.isEmpty()) {
             users = null;
         }
         if (state.isEmpty()) {
@@ -169,7 +174,7 @@ public class EventServiceImpl implements EventService {
         }
         if (categories.isEmpty()) {
             categories = null;
-        }
+        }*/
         return eventRepository.getAllEventsAdmin(users, state, categories, rangeStart, rangeEnd, pageble).stream()
                 .map(eventMapper::mapEventModelToEventFullDto).collect(Collectors.toList());
     }
@@ -187,7 +192,9 @@ public class EventServiceImpl implements EventService {
 
     private void checkIfEventTimeIsMoreThan1Hour(EventModel eventModelToBeChanged) {
         if (eventModelToBeChanged.getEventDate() != null
-                && eventModelToBeChanged.getEventDate().isBefore(LocalDateTime.now().minusHours(1))) ;
+                && eventModelToBeChanged.getEventDate().isBefore(LocalDateTime.now().plusHours(1))) {
+            throw new EwmServiceForbiddenException(String.format("Published time can't be less then 1 hour before event time"));
+        }
     }
 
     private void checkEventStateAndUpdateByAdmin(UpdateEventAdminAndUserRequestDTO updateEvent,
@@ -272,6 +279,15 @@ public class EventServiceImpl implements EventService {
                             eventShortDto.setConfirmedRequests(mapOfConfirmedRequests
                                     .getOrDefault(eventShortDto.getId(), 0L));
                             eventShortDto.setViews(mapOfEventsIdToAmountOfViews.getOrDefault(eventShortDto.getId(), 0L));
+                        }
+                );
+    }
+
+    public void addAmountOFConfirmedRequests(List<EventShortDto> eventShortDtos, Map<Long, Long> mapOfConfirmedRequests) {
+        eventShortDtos
+                .forEach(eventShortDto -> {
+                            eventShortDto.setConfirmedRequests(mapOfConfirmedRequests
+                                    .getOrDefault(eventShortDto.getId(), 0L));
                         }
                 );
     }
