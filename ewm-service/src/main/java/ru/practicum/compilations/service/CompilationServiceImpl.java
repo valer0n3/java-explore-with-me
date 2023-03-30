@@ -13,6 +13,7 @@ import ru.practicum.events.dto.EventShortDto;
 import ru.practicum.events.model.EventModel;
 import ru.practicum.events.repository.EventRepository;
 import ru.practicum.events.service.EventServiceImpl;
+import ru.practicum.exceptions.EwmServiceNotFound;
 import ru.practicum.requests.model.EventIdAndAmountOfConfirmedRequestsModel;
 
 import java.time.LocalDateTime;
@@ -36,32 +37,46 @@ public class CompilationServiceImpl implements CompilationService {
     @Transactional
     public CompilationDto saveNewCompilation(NewCompilationDto newCompilationDto) {
         List<EventModel> eventModels = new ArrayList<>();
-        if (newCompilationDto.getEvents() != null || newCompilationDto.getEvents().isEmpty()) {
-            eventModels = eventRepository.findAllByIdIn(newCompilationDto.getEvents());
+        if (newCompilationDto.getEvents() != null || !newCompilationDto.getEvents().isEmpty()) {
+            eventModels = findAllEventsModel(newCompilationDto.getEvents());
         }
         CompilationModel compilationModel = compilationRepository.save(compilationMapper
                 .mapNewCompilationDtoToCompilationModel(newCompilationDto, eventModels));
-        //TODO add views and amountOfconfiremedrequests
-        List<EventIdAndAmountOfConfirmedRequestsModel> listOfAmountConfirmedRequestsForEachEvent = eventServiceImpl
-                .getListOfParticipants(newCompilationDto.getEvents());
-        Map<Long, Long> mapOfConfirmedRequests = eventServiceImpl
-                .getMapOfEventsAndAmountOfConfirmedRequests(listOfAmountConfirmedRequestsForEachEvent);
-        List<EventShortDto> eventShortDtos = eventServiceImpl.getEventShortDtoFromEventModel(eventModels);
-        Map<Long, Long> mapOfEventsIdToAmountOfViews = statClientController.getStatistic(DEFAULT_START_DATE,
-                DEFAULT_END_DATE, newCompilationDto.getEvents(), null);
-        eventServiceImpl.addAmountOFConfirmedRequestsAndViews(eventShortDtos, mapOfConfirmedRequests, mapOfEventsIdToAmountOfViews);
-        return compilationMapper.mapCompilationModelToCompilationDto(compilationModel, eventShortDtos);
+        return CreateCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(eventModels,
+                newCompilationDto.getEvents(),
+                compilationModel);
+    }
+
+    private List<EventModel> findAllEventsModel(List<Long> events) {
+        return eventRepository.findAllByIdIn(events);
     }
 
     @Override
     @Transactional
     public void deleteCompilation(Long compId) {
+        CompilationModel compilationModel = findCompilationById(compId);
+        compilationRepository.deleteById(compId);
     }
 
     @Override
     @Transactional
-    public CompilationDto updateCompilation(NewCompilationDto newCompilationDto) {
-        return null;
+    public CompilationDto updateCompilation(Long compId, NewCompilationDto newCompilationDto) {
+        CompilationModel compilationModel = findCompilationById(compId);
+        List<EventModel> eventModels = new ArrayList<>();
+        if (newCompilationDto.getEvents() != null) {
+            eventModels = findAllEventsModel(newCompilationDto.getEvents());
+            compilationModel.setEvents(eventModels);
+        }
+        if (newCompilationDto.getPinned() != null) {
+            compilationModel.setPinned(newCompilationDto.getPinned());
+        }
+        if (newCompilationDto.getTitle() != null) {
+            compilationModel.setTitle(newCompilationDto.getTitle());
+        }
+        compilationRepository.save(compilationModel);
+        return CreateCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(eventModels,
+                newCompilationDto.getEvents(),
+                compilationModel);
     }
 
     @Override
@@ -72,5 +87,22 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     public CompilationDto getCompilation(Long compId) {
         return null;
+    }
+
+    private CompilationModel findCompilationById(Long compId) {
+        return compilationRepository.findById(compId).orElseThrow(() -> new EwmServiceNotFound(String
+                .format("Compilation id: %s was not found", compId)));
+    }
+
+    private CompilationDto CreateCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(List<EventModel> eventModels, List<Long> events, CompilationModel compilationModel) {
+        List<EventIdAndAmountOfConfirmedRequestsModel> listOfAmountConfirmedRequestsForEachEvent = eventServiceImpl
+                .getListOfParticipants(events);
+        Map<Long, Long> mapOfConfirmedRequests = eventServiceImpl
+                .getMapOfEventsAndAmountOfConfirmedRequests(listOfAmountConfirmedRequestsForEachEvent);
+        List<EventShortDto> eventShortDtos = eventServiceImpl.getEventShortDtoFromEventModel(eventModels);
+        Map<Long, Long> mapOfEventsIdToAmountOfViews = statClientController.getStatistic(DEFAULT_START_DATE,
+                DEFAULT_END_DATE, events, null);
+        eventServiceImpl.addAmountOFConfirmedRequestsAndViews(eventShortDtos, mapOfConfirmedRequests, mapOfEventsIdToAmountOfViews);
+        return compilationMapper.mapCompilationModelToCompilationDto(compilationModel, eventShortDtos);
     }
 }
