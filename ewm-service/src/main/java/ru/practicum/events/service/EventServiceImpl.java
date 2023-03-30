@@ -266,7 +266,7 @@ public class EventServiceImpl implements EventService {
         return eventShortDtos;
     }
 
-    private void addAmountOFConfirmedRequestsAndViews(List<EventShortDto> eventShortDtos, Map<Long, Long> mapOfConfirmedRequests, Map<Long, Long> mapOfEventsIdToAmountOfViews) {
+    public void addAmountOFConfirmedRequestsAndViews(List<EventShortDto> eventShortDtos, Map<Long, Long> mapOfConfirmedRequests, Map<Long, Long> mapOfEventsIdToAmountOfViews) {
         eventShortDtos.stream()
                 .forEach(eventShortDto -> {
                             eventShortDto.setConfirmedRequests(mapOfConfirmedRequests
@@ -281,7 +281,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private List<EventShortDto> filterIfRequestLimitIsNotReached(List<EventModel> eventModel,
-                                                                 boolean onlyAvailable,
+                                                                 Boolean onlyAvailable,
                                                                  Map<Long, Long> mapOfConfirmedRequests) {
         if (onlyAvailable) {
             return eventModel.stream().filter(eventModel1 -> {
@@ -298,14 +298,19 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private Map<Long, Long> getMapOfEventsAndAmountOfConfirmedRequests(
+    public List<EventShortDto> getEventShortDtoFromEventModel(List<EventModel> eventModel) {
+        return eventModel.stream()
+                .map(eventMapper::mapEventModelToEventShortDto).collect(Collectors.toList());
+    }
+
+    public Map<Long, Long> getMapOfEventsAndAmountOfConfirmedRequests(
             List<EventIdAndAmountOfConfirmedRequestsModel> confirmedRequestsModel) {
         return confirmedRequestsModel.stream()
                 .collect(Collectors.toMap(EventIdAndAmountOfConfirmedRequestsModel::getEventId,
                         EventIdAndAmountOfConfirmedRequestsModel::getAmountConfirmedRequests));
     }
 
-    private List<EventIdAndAmountOfConfirmedRequestsModel> getListOfParticipants(List<Long> listEventsIds) {
+    public List<EventIdAndAmountOfConfirmedRequestsModel> getListOfParticipants(List<Long> listEventsIds) {
         return requestRepository.getListOfAmountParticipants(listEventsIds, RequestStatusEnum.CONFIRMED.toString());
     }
 

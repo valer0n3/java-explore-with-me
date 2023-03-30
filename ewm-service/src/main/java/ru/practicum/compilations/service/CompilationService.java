@@ -8,6 +8,7 @@ import java.util.List;
 public interface CompilationService {
     CompilationDto saveNewCompilation(NewCompilationDto newCompilationDto);
 
+
     void deleteCompilation(Long compId);
 
     public CompilationDto updateCompilation(NewCompilationDto newCompilationDto);

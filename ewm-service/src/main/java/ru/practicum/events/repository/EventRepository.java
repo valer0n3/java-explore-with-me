@@ -48,6 +48,8 @@ public interface EventRepository extends JpaRepository<EventModel, Long> {
                                              Boolean paid,
                                              Pageable pageable);
 
+    List<EventModel> findAllByIdIn(List<Long> eventIds);
+
       /*   "where upper(i.name) like upper(concat('%', ?1, '%')) " + "" +
                  "or upper(i.description) like upper(concat('%', ?1, '%'))" +*/
 }

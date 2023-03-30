@@ -8,13 +8,14 @@ import ru.practicum.events.dto.EventShortDto;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class CompilationDto {
-    private EventShortDto events;
+    private List<EventShortDto> events;
     @NotNull
     @NotBlank
     private Long id;
