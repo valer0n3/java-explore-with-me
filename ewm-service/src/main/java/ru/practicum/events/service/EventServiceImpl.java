@@ -362,9 +362,8 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkIfEvenStatusIsCanceledOrPending(EventModel updatedEventModel) {
-        if ((updatedEventModel.getState().toUpperCase().equals(EventStateEnum.CANCELED.toString())) ||
-                (updatedEventModel.getState().toUpperCase().equals(EventStateEnum.PENDING.toString()))) {
-        } else {
+        if ((!updatedEventModel.getState().toUpperCase().equals(EventStateEnum.CANCELED.toString())) &&
+                (!updatedEventModel.getState().toUpperCase().equals(EventStateEnum.PENDING.toString()))) {
             throw new EwmServiceConflictException("Only pending or canceled events can be changed");
         }
     }

@@ -45,7 +45,7 @@ public class CompilationServiceImpl implements CompilationService {
         }
         CompilationModel compilationModel = compilationRepository.save(compilationMapper
                 .mapNewCompilationDtoToCompilationModel(newCompilationDto, eventModels));
-        return CreateCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(eventModels,
+        return createCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(eventModels,
                 newCompilationDto.getEvents(),
                 compilationModel);
     }
@@ -77,7 +77,7 @@ public class CompilationServiceImpl implements CompilationService {
             compilationModel.setTitle(newCompilationDto.getTitle());
         }
         compilationRepository.save(compilationModel);
-        return CreateCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(eventModels,
+        return createCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(eventModels,
                 newCompilationDto.getEvents(),
                 compilationModel);
     }
@@ -98,7 +98,7 @@ public class CompilationServiceImpl implements CompilationService {
         CompilationModel compilationModel = findCompilationById(compId);
         List<Long> eventIds = compilationModel.getEvents().stream()
                 .map(EventModel::getId).collect(Collectors.toList());
-        return CreateCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(compilationModel.getEvents(),
+        return createCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(compilationModel.getEvents(),
                 eventIds,
                 compilationModel);
     }
@@ -108,7 +108,7 @@ public class CompilationServiceImpl implements CompilationService {
                 .format("Compilation id: %s was not found", compId)));
     }
 
-    private CompilationDto CreateCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(
+    private CompilationDto createCompilationDtoWithAmountOfConfirmedRequsestsAndAMountOfViews(
             List<EventModel> eventModels, List<Long> events, CompilationModel compilationModel) {
         List<EventIdAndAmountOfConfirmedRequestsModel> listOfAmountConfirmedRequestsForEachEvent = eventServiceImpl
                 .getListOfParticipants(events);
