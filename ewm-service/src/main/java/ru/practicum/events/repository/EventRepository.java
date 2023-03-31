@@ -25,14 +25,6 @@ public interface EventRepository extends JpaRepository<EventModel, Long> {
                                        LocalDateTime rangeEnd,
                                        Pageable pageable);
 
-    /*     @Query("SELECT i FROM EventModel i WHERE (i.eventDate >= ?1) AND (i.eventDate <= ?2 OR i.eventDate IS NULL)")
-        List<EventModel> findEventByCustomFilter(String text,
-                                                 List<Long> categories,
-                                                 Boolean paid,
-                                                 LocalDateTime rangeStart,
-                                                 LocalDateTime rangeEnd,
-                                                 Pageable pageable);
-    */
     @Query("SELECT i FROM EventModel i WHERE (i.eventDate >= ?1) AND (i.eventDate <= ?2) " +
             "AND upper(i.state) = upper(?3) " +
             "AND (i.category.id IN ?5 OR ?5 IS NULL) " +
@@ -49,7 +41,4 @@ public interface EventRepository extends JpaRepository<EventModel, Long> {
                                              Pageable pageable);
 
     List<EventModel> findAllByIdIn(List<Long> eventIds);
-
-      /*   "where upper(i.name) like upper(concat('%', ?1, '%')) " + "" +
-                 "or upper(i.description) like upper(concat('%', ?1, '%'))" +*/
 }

@@ -22,7 +22,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<GetUserDto> getAllUsers(List<Long> ids, int from, int size) {
-        Pageable pageble = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
+        Pageable pageble = PageRequest.of(from / size, size);
         if (ids == null || ids.isEmpty()) {
             return userRepository.findAll(pageble).stream()
                     .map(userMapper::mapUserModelToGetUserDto)

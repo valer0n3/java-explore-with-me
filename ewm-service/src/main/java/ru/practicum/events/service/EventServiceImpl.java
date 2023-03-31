@@ -48,6 +48,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
+    private static final LocalDateTime DEFAULT_START_DATE = LocalDateTime.of(2000, 01, 01, 00, 00, 00);
+    private static final LocalDateTime DEFAULT_END_DATE = LocalDateTime.of(2099, 01, 01, 01, 00, 00);
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
@@ -58,12 +60,10 @@ public class EventServiceImpl implements EventService {
     private final RequestMapper requestMapper;
     private final RequestServiceImpl requestServiceImpl;
     private final StatClientController statClientController;
-    private static final LocalDateTime DEFAULT_START_DATE = LocalDateTime.of(2000, 01, 01, 00, 00, 00);
-    private static final LocalDateTime DEFAULT_END_DATE = LocalDateTime.of(2099, 01, 01, 01, 00, 00);
 
     @Override
     public List<EventShortDto> getAllEventsForCurrentUser(long userId, int from, int size) {
-        Pageable pageble = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
+        Pageable pageble = PageRequest.of(from / size, size);
         checkIfUserExists(userId);
         return eventRepository.findByInitiatorId(userId, pageble).stream()
                 .map(eventMapper::mapEventModelToEventShortDto)
@@ -128,6 +128,9 @@ public class EventServiceImpl implements EventService {
                 .findAllByIdIn(eventRequestStatusUpdateRequestDto.getRequestIds());
         int amountOfConfirmedParticipants = requestServiceImpl.getAmountOfConfirmedParticipants(eventId);
         int participantsLimit = eventModel.getParticipantLimit();
+        if (amountOfConfirmedParticipants >= participantsLimit) {
+            throw new EwmServiceConflictException(String.format("Limit reached"));
+        }
         for (RequestModel requestModel : requestsToBeUpdated) {
             if (requestModel.getStatus().toUpperCase().equals(EventStateEnum.PENDING.toString())) {
                 if (eventRequestStatusUpdateRequestDto.getStatus().toString().equals(RequestStatusEnum.CONFIRMED.toString())) {
@@ -165,17 +168,7 @@ public class EventServiceImpl implements EventService {
                                                 LocalDateTime rangeStart,
                                                 LocalDateTime rangeEnd,
                                                 int from, int size) {
-        Pageable pageble = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
-        //TODO transfer to another method
-    /*    if (users.isEmpty()) {
-            users = null;
-        }
-        if (state.isEmpty()) {
-            state = null;
-        }
-        if (categories.isEmpty()) {
-            categories = null;
-        }*/
+        Pageable pageble = PageRequest.of(from / size, size);
         return eventRepository.getAllEventsAdmin(users, state, categories, rangeStart, rangeEnd, pageble).stream()
                 .map(eventMapper::mapEventModelToEventFullDto).collect(Collectors.toList());
     }
@@ -185,7 +178,6 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateEventAndStatusAdmin(long eventId, UpdateEventAdminAndUserRequestDTO updateEvent) {
         EventModel eventModelToBeChanged = checkIfEventExists(eventId);
         checkIfEventTimeIsMoreThan1Hour(eventModelToBeChanged);
-        // updateEventModuleStatePrivate(updateEventAdminAndUserRequestDTO, eventModelToBeChanged);
         checkEventStateAndUpdateByAdmin(updateEvent, eventModelToBeChanged);
         return eventMapper.mapEventModelToEventFullDto(eventRepository
                 .save(updateEventModule(updateEvent, eventModelToBeChanged)));
@@ -201,7 +193,6 @@ public class EventServiceImpl implements EventService {
     private void checkEventStateAndUpdateByAdmin(UpdateEventAdminAndUserRequestDTO updateEvent,
                                                  EventModel eventModelToBeChanged) {
         if (updateEvent.getStateAction() != null) {
-
             StateActionEnum.checkIfUpdatedStateActionIsPublishOrRejectEvent(updateEvent.getStateAction());
             updateEventStateByAdmin(updateEvent, eventModelToBeChanged);
         }
@@ -240,12 +231,11 @@ public class EventServiceImpl implements EventService {
                                                    String sort,
                                                    int from, int size,
                                                    HttpServletRequest httpServletRequest) {
-        Pageable pageable = PageRequest.of(from / size, size/*, Sort.by("start").descending()*/);
+        Pageable pageable = PageRequest.of(from / size, size);
         if (rangeStart == null || rangeEnd == null) {
             rangeStart = LocalDateTime.now();
             rangeEnd = DEFAULT_END_DATE;
         }
-        System.out.println("**********: " + rangeStart + "\n" + rangeEnd);
         List<EventModel> eventModel = eventRepository.findEventByCustomFilter(rangeStart,
                 rangeEnd,
                 EventStateEnum.PUBLISHED.toString(),
@@ -253,24 +243,13 @@ public class EventServiceImpl implements EventService {
                 categories,
                 paid,
                 pageable);
-        //Собираем эвенты в лист id шников эвентов
         List<Long> listEventsIds = getListEventdIds(eventModel);
-        //Получаем лист с дтошкой в которйо харнится EventId и AmountConfirmedRequests
         List<EventIdAndAmountOfConfirmedRequestsModel> listOfAmountConfirmedRequestsForEachEvent = getListOfParticipants(listEventsIds);
-        //Получаем мапу  <EventsID, AmountOfConfirmedRequests>>
         Map<Long, Long> mapOfConfirmedRequests = getMapOfEventsAndAmountOfConfirmedRequests(listOfAmountConfirmedRequestsForEachEvent);
-        //проверить только события у которых не исчерпан лимит запросов на участиеavailable или все
-        //available = faulse по умолчанию.
-        //if available true - then filter else do nothing
         List<EventShortDto> eventShortDtos = filterIfRequestLimitIsNotReached(eventModel, onlyAvailable, mapOfConfirmedRequests);
-        //вставляем в DTO количество подтвержденных реквестов на участие в эвенте:
-        //TODO дописать тоже самое для получения просмотров...
         Map<Long, Long> mapOfEventsIdToAmountOfViews = statClientController.getStatistic(DEFAULT_START_DATE,
                 DEFAULT_END_DATE, listEventsIds, null);
         addAmountOFConfirmedRequestsAndViews(eventShortDtos, mapOfConfirmedRequests, mapOfEventsIdToAmountOfViews);
-        //Произвести сортировку в зависимости от параметра sort
-       /* if (sort != null) {
-        }*/
         statClientController.addNewStatistic(httpServletRequest);
         return eventShortDtos;
     }
@@ -372,7 +351,6 @@ public class EventServiceImpl implements EventService {
                 .format("User with id: %d is not existed", userId)));
     }
 
-    //TODO change to Optional as IDEA suggests
     private LocationModel checkIfLocationExistsIfNotThenSave(LocationDto locationDto) {
         LocationModel locationModel = locationRepository.findByLatAndLon(locationDto.getLat(),
                 locationDto.getLon());

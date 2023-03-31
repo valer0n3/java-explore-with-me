@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RequestRepository extends JpaRepository<RequestModel, Long> {
-    // Optional<RequestModel> findByRequesterIdAndEventId(Long requestorid, Long eventId);
-
     @Query("Select COUNT(req) FROM RequestModel req " +
             "WHERE req.event.id = ?1 AND req.status = upper(?2)")
     int getAmountOfParticipants(long eventId, String status);
@@ -22,6 +20,7 @@ public interface RequestRepository extends JpaRepository<RequestModel, Long> {
 
     Optional<RequestModel> findByIdAndRequesterId(Long requestId, Long userId);
 
+    @Query("SELECT i FROM RequestModel i WHERE i.event.initiator.id = ?1")
     List<RequestModel> findAllByEventIdAndEventId(Long requesterId, Long eventId);
 
     List<RequestModel> findAllByRequesterId(Long userId);

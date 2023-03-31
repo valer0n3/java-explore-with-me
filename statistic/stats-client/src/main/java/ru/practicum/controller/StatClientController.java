@@ -49,12 +49,11 @@ public class StatClientController {
         StringBuilder uriInRequestParameter = new StringBuilder();
         for (int i = 0; i < uris.size(); i++) {
             if (i < uris.size() - 2) {
-                uriInRequestParameter.append("&uris=/events/").append(uris.get(i)).append(",");
+                uriInRequestParameter.append("/events/").append(uris.get(i)).append(",");
             } else {
-                uriInRequestParameter.append("&uris=/events/").append(uris.get(i));
+                uriInRequestParameter.append("/events/").append(uris.get(i));
             }
         }
-        System.out.println("*********:&&&&&: " + uriInRequestParameter);
         List<GetStatDto> getStatDtoList = webClient.get()
                 .uri(uriBuilder -> uriBuilder
                         .path("/stats")
@@ -71,7 +70,6 @@ public class StatClientController {
             return Collections.EMPTY_MAP;
         }
         Map<Long, Long> mapOfEventIdAndAmountOfView = new HashMap<>();
-
         for (GetStatDto getStatDto : getStatDtoList) {
             long eventId = Long.parseLong(getStatDto.getUri().replace("/events/", ""));
             mapOfEventIdAndAmountOfView.put(eventId, getStatDto.getHits());

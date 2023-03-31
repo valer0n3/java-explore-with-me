@@ -16,5 +16,4 @@ public interface RequestMapper {
 
     EventRequestStatusUpdateResultDto mapConfirmedOrRejectedToEventRequestStatusUpdateResultDto(
             List<RequestModel> confirmedRequests, List<RequestModel> rejectedRequests);
-    // RequestModel mapParticipationRequestDtoToRequestModel(ParticipationRequestDto participationRequestDto);
 }

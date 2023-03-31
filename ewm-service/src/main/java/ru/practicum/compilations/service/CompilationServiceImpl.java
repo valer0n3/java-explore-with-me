@@ -84,28 +84,13 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public List<CompilationDto> getAllCompilations(Boolean pinned, Integer from, Integer size) {
-        Pageable pageble = PageRequest.of(from / size, size /*Sort.by("start").descending()*/);
+        Pageable pageble = PageRequest.of(from / size, size);
         List<CompilationModel> compilationModel = compilationRepository.findCompilationsByFilter(pinned, pageble);
         List<CompilationDto> compilationDtos = compilationModel.stream().map(compilationModel1 -> {
             List<EventShortDto> eventShortDtos = eventServiceImpl.getEventShortDtoFromEventModel(compilationModel1.getEvents());
             return compilationMapper.mapCompilationModelToCompilationDto(compilationModel1, eventShortDtos);
         }).collect(Collectors.toList());
-
-
-/*        List<EventModel> listOfAllEvents = new ArrayList<>();
-        compilationModel.forEach(compilationModel1 -> listOfAllEvents.addAll(compilationModel1.getEvents()));
-        List<Long> listOfEventIds = listOfAllEvents.stream()
-                .map(EventModel::getId).collect(Collectors.toList());
-        List<EventIdAndAmountOfConfirmedRequestsModel> listOfAmountConfirmedRequestsForEachEvent = eventServiceImpl
-                .getListOfParticipants(listOfEventIds);
-        Map<Long, Long> mapOfConfirmedRequests = eventServiceImpl
-                .getMapOfEventsAndAmountOfConfirmedRequests(listOfAmountConfirmedRequestsForEachEvent);
-        List<EventShortDto> eventShortDtos = eventServiceImpl.getEventShortDtoFromEventModel(listOfAllEvents);
-        Map<Long, Long> mapOfEventsIdToAmountOfViews = statClientController.getStatistic(DEFAULT_START_DATE,
-                DEFAULT_END_DATE, listOfEventIds, null);
-        eventServiceImpl.addAmountOFConfirmedRequestsAndViews(eventShortDtos, mapOfConfirmedRequests, mapOfEventsIdToAmountOfViews);*/
-        //пройтись циклом по всем compilatinsModel и собрать compilationModel + List<EventShortDtos>
-        return compilationDtos;//compilationMapper.mapCompilationModelToCompilationDto(compilationModel, eventShortDtos);
+        return compilationDtos;
     }
 
     @Override

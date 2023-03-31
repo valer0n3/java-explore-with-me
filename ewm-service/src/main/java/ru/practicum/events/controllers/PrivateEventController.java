@@ -73,5 +73,5 @@ public class PrivateEventController {
             @PathVariable("eventId") @Min(0) long eventId,
             @Valid @RequestBody EventRequestStatusUpdateRequestDto eventRequestStatusUpdateRequestDto) {
         return eventService.updateRequestStatusForCurrentUser(userId, eventId, eventRequestStatusUpdateRequestDto);
-   }
+    }
 }
