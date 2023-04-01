@@ -70,7 +70,7 @@ public class RequestServiceImpl implements RequestService {
                 .format("User id: %s is not existed in database", userId)));
     }
 
-    private void checkIfEventBelongsToRequestor(Long userId, Long eventOwnerId) {
+    private void checkIfEventBelongsToRequestor(long userId, long eventOwnerId) {
         if (eventOwnerId == userId) {
             throw new EwmServiceConflictException("Initiator of a event can't create a request for participation");
         }
