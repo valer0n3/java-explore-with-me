@@ -3,8 +3,9 @@ package ru.practicum.events.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import javax.validation.constraints.Future;
 import javax.validation.constraints.NotBlank;
@@ -12,7 +13,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 
-@Data
+import static ru.practicum.constants.ProjectConstants.DATE_TIME_PATTERN;
+
+@Setter
+@Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -27,7 +31,7 @@ public class NewEventDto {
     @NotNull
     @NotBlank
     private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DATE_TIME_PATTERN)
     @NotNull
     @Future
     private LocalDateTime eventDate;

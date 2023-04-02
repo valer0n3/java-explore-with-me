@@ -5,7 +5,7 @@ services:
     container_name: statistic
     ports:
       - "9090:9090"
-#      - "9081:9081"
+      - "9081:9081"
     depends_on:
       - ewm-service
       - stats-db

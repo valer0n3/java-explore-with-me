@@ -3,13 +3,17 @@ package ru.practicum.events.dto;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.practicum.enums.StateActionEnum;
 
 import java.time.LocalDateTime;
 
-@Data
+import static ru.practicum.constants.ProjectConstants.DATE_TIME_PATTERN;
+
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -17,7 +21,7 @@ public class UpdateEventAdminAndUserRequestDTO {
     private String annotation;
     private Long category;
     private String description;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime eventDate;
     private LocationDto location;
     private Boolean paid;

@@ -15,11 +15,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static ru.practicum.constants.ProjectConstants.DATE_TIME_PATTERN;
+
 @Component
 public class StatClientController {
     private final WebClient webClient;
     private final String appName;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
 
     public StatClientController(@Value("${stats-server.url}") String statServerUrl,
                                 @Value("${appName}") String appName) {

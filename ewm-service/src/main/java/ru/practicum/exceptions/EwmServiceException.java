@@ -2,18 +2,22 @@ package ru.practicum.exceptions;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+import static ru.practicum.constants.ProjectConstants.DATE_TIME_PATTERN;
+
+@Setter
+@Getter
 @AllArgsConstructor
 @NoArgsConstructor
 public class EwmServiceException {
     private String status;
     private String reason;
     private String message;
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DATE_TIME_PATTERN)
     private LocalDateTime timestamp;
 }

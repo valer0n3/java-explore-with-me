@@ -19,6 +19,8 @@ import javax.validation.constraints.Min;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static ru.practicum.constants.ProjectConstants.DATE_TIME_PATTERN;
+
 @RestController
 @RequestMapping("/admin/events")
 @AllArgsConstructor
@@ -31,9 +33,9 @@ public class AdminEventController {
                                                 @RequestParam(name = "states", required = false) List<String> state,
                                                 @RequestParam(name = "categories", required = false) List<Long> categories,
                                                 @RequestParam(name = "rangeStart", required = false)
-                                                @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeStart,
+                                                @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeStart,
                                                 @RequestParam(name = "rangeEnd", required = false)
-                                                @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime rangeEnd,
+                                                @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime rangeEnd,
                                                 @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) int from,
                                                 @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size) {
         return eventService.getAllEventsAdmin(users, state, categories, rangeStart, rangeEnd, from, size);

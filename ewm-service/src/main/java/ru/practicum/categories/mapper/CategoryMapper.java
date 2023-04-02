@@ -9,9 +9,5 @@ import ru.practicum.categories.model.CategoryModel;
 public interface CategoryMapper {
     CategoryDto mapCategoryModelToGetCategoryDto(CategoryModel categoryModel);
 
-    CategoryModel mapGetCategoryDtoToCategoryModel(CategoryDto categoryDto);
-
-    PostCategoryDto mapCategoryModelToPostCategoryDto(CategoryModel categoryModel);
-
     CategoryModel mapPostCategoryDtoToCategoryModel(PostCategoryDto postCategoryDto);
 }

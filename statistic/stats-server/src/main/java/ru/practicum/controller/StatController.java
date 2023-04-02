@@ -17,6 +17,8 @@ import ru.practicum.service.StatService;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static ru.practicum.constants.ProjectConstants.DATE_TIME_PATTERN;
+
 @RestController
 @AllArgsConstructor
 public class StatController {
@@ -30,9 +32,9 @@ public class StatController {
 
     @GetMapping("/stats")
     public List<GetStatDto> getStatistics(@RequestParam(name = "start", required = false)
-                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                          @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime start,
                                           @RequestParam(name = "end", required = false)
-                                          @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                                          @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime end,
                                           @RequestParam(name = "uris", required = false) List<String> uris,
                                           @RequestParam(name = "unique", defaultValue = "false") Boolean unique) {
         return statService.getStatistics(start, end, uris, unique);
@@ -40,9 +42,9 @@ public class StatController {
 
     @GetMapping("/test")
     public List<GetStatDto> getStatistics2(@RequestParam(name = "start", required = false)
-                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime start,
+                                           @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime start,
                                            @RequestParam(name = "end", required = false)
-                                           @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") LocalDateTime end,
+                                           @DateTimeFormat(pattern = DATE_TIME_PATTERN) LocalDateTime end,
                                            @RequestParam(name = "uris", required = false) List<String> uris,
                                            @RequestParam(name = "unique", defaultValue = "false") Boolean unique) {
         return null;
