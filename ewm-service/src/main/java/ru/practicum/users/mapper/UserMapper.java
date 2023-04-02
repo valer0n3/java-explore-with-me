@@ -9,9 +9,5 @@ import ru.practicum.users.model.UserModel;
 public interface UserMapper {
     GetUserDto mapUserModelToGetUserDto(UserModel userModel);
 
-    UserModel mapGetUserDtoToUserModel(GetUserDto getUserDto);
-
-    PostUserDto mapUserModelToPostUserDto(UserModel userModel);
-
     UserModel mapPostUserDtoToUserModel(PostUserDto postUserDto);
 }

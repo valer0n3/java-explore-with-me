@@ -44,12 +44,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ru.practicum.constants.ProjectConstants.DEFAULT_END_DATE;
+import static ru.practicum.constants.ProjectConstants.DEFAULT_START_DATE;
+
 @Service
 @AllArgsConstructor
 @Transactional(readOnly = true)
 public class EventServiceImpl implements EventService {
-    private static final LocalDateTime DEFAULT_START_DATE = LocalDateTime.of(2000, 01, 01, 00, 00, 00);
-    private static final LocalDateTime DEFAULT_END_DATE = LocalDateTime.of(2099, 01, 01, 01, 00, 00);
     private final EventRepository eventRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;

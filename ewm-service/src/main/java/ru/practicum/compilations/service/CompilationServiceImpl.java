@@ -18,18 +18,18 @@ import ru.practicum.events.service.EventServiceImpl;
 import ru.practicum.exceptions.EwmServiceNotFound;
 import ru.practicum.requests.model.EventIdAndAmountOfConfirmedRequestsModel;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static ru.practicum.constants.ProjectConstants.DEFAULT_END_DATE;
+import static ru.practicum.constants.ProjectConstants.DEFAULT_START_DATE;
+
 @Service
 @AllArgsConstructor
 @Transactional(readOnly = true)
 public class CompilationServiceImpl implements CompilationService {
-    private static final LocalDateTime DEFAULT_START_DATE = LocalDateTime.of(2000, 01, 01, 00, 00, 00);
-    private static final LocalDateTime DEFAULT_END_DATE = LocalDateTime.of(2099, 01, 01, 01, 00, 00);
     private final CompilationRepository compilationRepository;
     private final CompilationMapper compilationMapper;
     private final EventRepository eventRepository;
