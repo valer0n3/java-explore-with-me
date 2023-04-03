@@ -10,13 +10,15 @@ public enum StateActionEnum {
 
     public static void checkIfUpdatedStateActionIsCancelOrSend(StateActionEnum state) {
         if (state != CANCEL_REVIEW && state != SEND_TO_REVIEW) {
-            throw new EwmServiceUnsupportedStatusEnum(String.format("State action can only be: %s, or %s", StateActionEnum.CANCEL_REVIEW));
+            throw new EwmServiceUnsupportedStatusEnum(String.format("State action can only be: %s, or %s",
+                    StateActionEnum.CANCEL_REVIEW, StateActionEnum.SEND_TO_REVIEW));
         }
     }
 
     public static void checkIfUpdatedStateActionIsPublishOrRejectEvent(StateActionEnum state) {
         if (state != PUBLISH_EVENT && state != REJECT_EVENT) {
-            throw new EwmServiceUnsupportedStatusEnum(String.format("State action can only be: %s, or %s", StateActionEnum.CANCEL_REVIEW));
+            throw new EwmServiceUnsupportedStatusEnum(String.format("State action can only be: %s, or %s",
+                    StateActionEnum.CANCEL_REVIEW, StateActionEnum.SEND_TO_REVIEW));
         }
     }
 }
