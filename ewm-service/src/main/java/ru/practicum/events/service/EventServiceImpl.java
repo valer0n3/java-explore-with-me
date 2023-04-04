@@ -347,7 +347,7 @@ public class EventServiceImpl implements EventService {
                         .format("Category with id: %d is not existed", categoryId)));
     }
 
-    private UserModel checkIfUserExists(long userId) {
+    public UserModel checkIfUserExists(long userId) {
         return userRepository.findById(userId).orElseThrow(() -> new EwmServiceNotFound(String
                 .format("User with id: %d is not existed", userId)));
     }
@@ -419,7 +419,7 @@ public class EventServiceImpl implements EventService {
         }
     }
 
-    private EventModel checkIfEventExists(long eventId) {
+    public EventModel checkIfEventExists(long eventId) {
         return eventRepository.findById(eventId)
                 .orElseThrow(() -> new EwmServiceNotFound(String
                         .format("Event with id=%d was not found", eventId)));
