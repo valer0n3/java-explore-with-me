@@ -1,4 +1,5 @@
 # java-explore-with-me
+https://github.com/valer0n3/java-explore-with-me/pull/6
 
 ## stats-server database diagram:
 
