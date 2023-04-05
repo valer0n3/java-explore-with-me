@@ -15,5 +15,6 @@ public class AdminCommentService {
 
     @DeleteMapping("/all/event/{eventId}")
     public void deleteAllCommentForCurrentEvent(@PathVariable("eventId") Long eventId) {
+        commentService.deleteAllCommentForCurrentEvent(eventId);
     }
 }

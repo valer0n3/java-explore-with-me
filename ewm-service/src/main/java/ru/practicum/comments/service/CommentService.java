@@ -19,9 +19,7 @@ public interface CommentService {
 
     void deleteAllCommentForCurrentEvent(Long eventId);
 
-    List<ReturnCommentDto> getAllCommentsForCurrentEvent(
-            Long eventId,
-            Long userId,
-            int from,
-            int size);
+    List<ReturnCommentDto> getAllCommentsForCurrentEvent(Long eventId,
+                                                         int from,
+                                                         int size);
 }

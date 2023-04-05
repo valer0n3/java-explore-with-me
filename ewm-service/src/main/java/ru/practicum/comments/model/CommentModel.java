@@ -30,7 +30,7 @@ public class CommentModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "comments_id")
-    private int id;
+    private Long id;
     @Column(name = "text")
     private String text;
     @ManyToOne

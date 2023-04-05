@@ -26,19 +26,20 @@ public class PrivateCommentService {
     public ReturnCommentDto createNewComment(@PathVariable("eventId") Long eventId,
                                              @PathVariable("userId") Long userId,
                                              @Valid @RequestBody PostCommentDto commentDto) {
-        return null;
+        return commentService.createNewComment(eventId, userId, commentDto);
     }
 
     @DeleteMapping("/{commentId}/user/{userId}")
     public void deleteComment(@PathVariable("commentId") Long commentId,
                               @PathVariable("userId") Long userId) {
+        commentService.deleteComment(commentId, userId);
     }
 
     @PatchMapping("/{commentId}/user/{userId}")
     public ReturnCommentDto updateComment(@PathVariable("commentId") Long commentId,
                                           @PathVariable("userId") Long userId,
                                           @Valid @RequestBody PostCommentDto commentDto) {
-        return null;
+        return commentService.updateComment(commentId, userId, commentDto);
     }
 
 }

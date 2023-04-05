@@ -50,6 +50,7 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public ReturnCommentDto updateComment(Long commentId, Long userId, PostCommentDto commentDto) {
         CommentModel commentModel = checkIfCommentExists(commentId);
         if (commentDto.getText() != null && !commentDto.getText().isBlank()) {
@@ -60,12 +61,13 @@ public class CommentServiceImpl implements CommentService {
     }
 
     @Override
+    @Transactional
     public void deleteAllCommentForCurrentEvent(Long eventId) {
         commentRepository.deleteAllByEventId(eventId);
     }
 
     @Override
-    public List<ReturnCommentDto> getAllCommentsForCurrentEvent(Long eventId, Long userId, int from, int size) {
+    public List<ReturnCommentDto> getAllCommentsForCurrentEvent(Long eventId, int from, int size) {
         Pageable pageable = PageRequest.of(from / size, size);
         return commentRepository.getAllByEventId(eventId, pageable).stream()
                 .map(commentMapper::mapCommentModelToReturnCommentDto)
@@ -79,9 +81,9 @@ public class CommentServiceImpl implements CommentService {
     }
 
     private void checkIfCurrentUserCreatedComment(Long userId, CommentModel comment) {
-        if (!comment.getUser().equals(userId)) {
+        if (!comment.getUser().getId().equals(userId)) {
             throw new EwmServiceConflictException(String
-                    .format("User id: %s can't update current comment id: %s", userId, comment.getId()));
+                    .format("User id: %s can't perform actions with current comment id: %s", userId, comment.getId()));
         }
     }
 }

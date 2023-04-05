@@ -5,8 +5,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.events.model.EventModel;
-import ru.practicum.users.model.UserModel;
+import ru.practicum.events.dto.EventCommentDto;
+import ru.practicum.users.dto.UserShortDto;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class ReturnCommentDto {
     private int id;
     private String text;
-    private EventModel event;
-    private UserModel user;
+    private EventCommentDto event;
+    private UserShortDto user;
     private LocalDateTime created;
 }
