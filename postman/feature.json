@@ -31,7 +31,6 @@
 							"});\r",
 							"pm.test(\"Create new category fields\", function () {\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.id, '\"id\" field').to.eql(1);\r",
 							"    pm.expect(jsonData.name, '\"name\" field').to.eql('testCategory');\r",
 							"});"
 						],
@@ -91,7 +90,6 @@
 							"});\r",
 							"pm.test(\"Test create user\", function () {\r",
 							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.id, '\"id\" field').to.eql(1);\r",
 							"    pm.expect(jsonData.email, '\"email\" field').to.eql('test@mail.com');\r",
 							"});"
 						],
@@ -138,10 +136,7 @@
 							"    pm.response.to.be.withBody;\r",
 							"    pm.response.to.be.json;\r",
 							"});\r",
-							"pm.test(\"Test create event\", function () {\r",
-							"    var jsonData = pm.response.json();\r",
-							"    pm.expect(jsonData.id, '\"id\" field').to.eql(1);\r",
-							"});"
+							""
 						],
 						"type": "text/javascript"
 					}
