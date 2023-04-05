@@ -2,7 +2,6 @@ package ru.practicum.comments.conroller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,7 +13,6 @@ import ru.practicum.comments.dto.ReturnCommentDto;
 import ru.practicum.comments.service.CommentService;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/comments")
@@ -41,5 +39,4 @@ public class PrivateCommentService {
                                           @Valid @RequestBody PostCommentDto commentDto) {
         return commentService.updateComment(commentId, userId, commentDto);
     }
-
 }
