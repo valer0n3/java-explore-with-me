@@ -10,7 +10,7 @@ import ru.practicum.comments.service.CommentService;
 @RestController
 @RequestMapping("comments")
 @AllArgsConstructor
-public class AdminCommentService {
+public class AdminCommentController {
     private final CommentService commentService;
 
     @DeleteMapping("/all/event/{eventId}")

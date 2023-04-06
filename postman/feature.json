@@ -347,15 +347,13 @@
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "{{baseUrl}}/comments/event/1/user/1",
+					"raw": "{{baseUrl}}/comments/event/1",
 					"host": [
 						"{{baseUrl}}"
 					],
 					"path": [
 						"comments",
 						"event",
-						"1",
-						"user",
 						"1"
 					]
 				}

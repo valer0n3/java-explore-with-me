@@ -17,7 +17,7 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/comments")
 @AllArgsConstructor
-public class PrivateCommentService {
+public class PrivateCommentController {
     private final CommentService commentService;
 
     @PostMapping("/event/{eventId}/user/{userId}")

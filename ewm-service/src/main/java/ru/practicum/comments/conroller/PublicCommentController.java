@@ -15,13 +15,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/comments")
 @AllArgsConstructor
-public class PublicCommentService {
+public class PublicCommentController {
     private final CommentService commentService;
 
-    @GetMapping("/event/{eventId}/user/{userId}")
+    @GetMapping("/event/{eventId}")
     public List<ReturnCommentDto> getAllCommentsForCurrentEvent(
             @PathVariable("eventId") Long eventId,
-            @PathVariable("userId") Long userId,
             @RequestParam(name = "from", required = false, defaultValue = "0") @Min(0) int from,
             @RequestParam(name = "size", required = false, defaultValue = "10") @Min(1) int size) {
         return commentService.getAllCommentsForCurrentEvent(eventId, from, size);
